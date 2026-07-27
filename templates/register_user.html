@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar usuario · VitalSync</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--teal:#19A97B;--teal-dark:#13855F;--teal-light:#e6f7f1;--text:#1c2b3a;--muted:#6c7d89;--border:#dfe8ee;--red:#b52d2d}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(145deg,#e6f7f1,#f5f7fa 52%,#eaf4fb);font-family:Nunito,sans-serif;color:var(--text);padding:32px 18px}
+    main{width:min(100%,620px);margin:auto}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}.brand{color:var(--teal);font:700 25px 'Playfair Display',serif;display:flex;align-items:center;gap:9px}.mark{width:35px;height:35px;border-radius:11px;background:var(--teal);display:grid;place-items:center}.back{color:var(--teal);font-weight:800;font-size:14px;text-decoration:none}
+    .card{background:#fff;border:1px solid rgba(25,169,123,.18);border-radius:24px;padding:32px;box-shadow:0 18px 60px rgba(22,81,65,.13)}h1{font:700 27px 'Playfair Display',serif;margin:0 0 7px}.lead{color:var(--muted);font-size:14px;margin:0 0 26px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.full{grid-column:1/-1}.field{margin-bottom:2px}label{display:block;font-size:13px;font-weight:800;margin:0 0 7px}input{width:100%;padding:12px 13px;border:1.5px solid var(--border);border-radius:11px;background:#fbfcfd;font:600 15px Nunito,sans-serif;outline:0}input:focus{border-color:var(--teal);box-shadow:0 0 0 4px rgba(25,169,123,.12);background:#fff}.hint{display:block;margin-top:5px;font-size:11px;color:var(--muted)}button{width:100%;margin-top:24px;border:0;border-radius:12px;padding:14px;background:var(--teal);color:#fff;font:800 15px Nunito,sans-serif;cursor:pointer;box-shadow:0 6px 16px rgba(25,169,123,.28)}button:hover{background:var(--teal-dark)}.message{padding:12px 14px;border-radius:11px;font-weight:700;font-size:13px;line-height:1.4;margin:0 0 20px}.error{background:#fdeaea;color:var(--red)}.success{background:var(--teal-light);color:var(--teal-dark)}@media(max-width:520px){.card{padding:26px 20px}.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="top"><div class="brand"><span class="mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.7"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>VitalSync</div><a class="back" href="{% url 'dashboard' %}">← Volver al panel</a></div>
+    <section class="card">
+      <h1>Registrar usuario</h1>
+      <p class="lead">Crea una cuenta nueva y, si corresponde, agrega los datos mock de su perfil médico.</p>
+      {% if error_message %}<div class="message error" role="alert">{{ error_message }}</div>{% endif %}
+      {% if success_message %}<div class="message success" role="status">{{ success_message }}</div>{% endif %}
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="grid">
+          <div class="field full"><label for="cedula">Cédula / ID Number</label><input id="cedula" name="cedula" inputmode="numeric" autocomplete="off" value="{{ request.POST.cedula }}" required placeholder="Ej. 108880123"></div>
+          <div class="field"><label for="password">Contraseña</label><input id="password" type="password" name="password" required autocomplete="new-password"></div>
+          <div class="field"><label for="password_confirmation">Confirmar contraseña</label><input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password"></div>
+          <div class="field full"><label for="conditions">Condiciones médicas</label><input id="conditions" name="conditions" value="{{ request.POST.conditions }}" placeholder="Ej. Hipertensión, Diabetes"><span class="hint">Separa varias condiciones con comas.</span></div>
+          <div class="field full"><label for="medications">Medicamentos actuales</label><input id="medications" name="medications" value="{{ request.POST.medications }}" placeholder="Ej. Losartán 50 mg, Metformina"><span class="hint">Separa varios medicamentos con comas.</span></div>
+          <div class="field full"><label for="emergency_email">Correo de emergencia</label><input id="emergency_email" type="email" name="emergency_email" value="{{ request.POST.emergency_email }}" placeholder="contacto@example.com"></div>
+        </div>
+        <button type="submit">Registrar usuario</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

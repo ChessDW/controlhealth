@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingresar · VitalSync</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--teal:#19A97B;--teal-dark:#13855F;--teal-light:#e6f7f1;--text:#1c2b3a;--muted:#6c7d89;--border:#dfe8ee;}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;background:linear-gradient(150deg,#e6f7f1 0%,#f5f7fa 48%,#eaf4fb 100%);font-family:Nunito,sans-serif;color:var(--text);display:grid;place-items:center;padding:24px}
+    .card{width:min(100%,430px);background:#fff;border:1px solid rgba(25,169,123,.18);border-radius:24px;padding:38px 32px;box-shadow:0 18px 60px rgba(22,81,65,.15)}
+    .brand{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--teal);font:700 27px 'Playfair Display',serif;margin-bottom:28px}.icon{width:38px;height:38px;border-radius:12px;background:var(--teal);display:grid;place-items:center}
+    h1{font:700 26px 'Playfair Display',serif;text-align:center;margin:0 0 8px} .intro{text-align:center;color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 28px}
+    label{display:block;font-weight:800;font-size:13px;margin:0 0 7px}.field{margin-bottom:18px} input{display:block;width:100%;border:1.5px solid var(--border);border-radius:12px;background:#fbfcfd;padding:13px 14px;color:var(--text);font:600 16px Nunito,sans-serif;outline:0;transition:.2s}input:focus{border-color:var(--teal);box-shadow:0 0 0 4px rgba(25,169,123,.12);background:#fff}
+    button{width:100%;border:0;border-radius:12px;background:var(--teal);color:#fff;padding:14px 16px;font:800 15px Nunito,sans-serif;cursor:pointer;box-shadow:0 6px 16px rgba(25,169,123,.28);transition:.2s}button:hover{background:var(--teal-dark);transform:translateY(-1px)}
+    .error{margin:0 0 18px;padding:11px 13px;border-radius:10px;background:#fdeaea;color:#b52d2d;font-size:13px;font-weight:700;line-height:1.4}.note{margin:22px 0 0;text-align:center;font-size:12px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand"><span class="icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>VitalSync</div>
+    <h1>Bienvenido de nuevo</h1>
+    <p class="intro">Ingresa con tu cédula para acceder a tu información de salud.</p>
+    {% if error_message %}<p class="error" role="alert">{{ error_message }}</p>{% endif %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="field"><label for="cedula">Cédula / ID Number</label><input id="cedula" name="cedula" inputmode="numeric" autocomplete="username" value="{{ request.POST.cedula }}" required autofocus placeholder="Ej. 108880123"></div>
+      <div class="field"><label for="password">Contraseña</label><input id="password" type="password" name="password" autocomplete="current-password" required placeholder="Tu contraseña"></div>
+      <button type="submit">Ingresar a VitalSync</button>
+    </form>
+    <p class="note">Prototipo de demostración · Tus datos se muestran solo para esta sesión.</p>
+  </main>
+</body>
+</html>

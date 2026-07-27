@@ -192,10 +192,20 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
 .nb-valores{background:var(--blue-light);color:var(--blue);}.nb-valores .nbi{background:rgba(59,146,207,.15);}
 .nb-reg{background:var(--yellow-light);color:#8B6200;}.nb-reg .nbi{background:rgba(246,197,68,.22);}
 .nb-emg{background:var(--red);color:white;box-shadow:0 6px 24px rgba(232,69,69,.35);}.nb-emg .nbi{background:rgba(255,255,255,.18);}
+
+/* AI CHAT */
+.chat-body{display:flex;flex:1;min-height:0;flex-direction:column;padding:16px 16px 20px;background:var(--bg);}
+.chat-banner{font-size:12px;line-height:1.45;color:#386155;background:var(--teal-light);border:1px solid var(--teal-mid);padding:10px 12px;border-radius:12px;margin-bottom:12px;}
+.chat-messages{display:flex;flex:1;min-height:280px;overflow-y:auto;flex-direction:column;gap:10px;padding:4px 2px 14px;}
+.chat-message{max-width:86%;padding:11px 13px;border-radius:15px;font-size:13px;line-height:1.5;white-space:pre-wrap;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.chat-message.bot{align-self:flex-start;background:white;border:1px solid var(--border);border-bottom-left-radius:4px;}.chat-message.user{align-self:flex-end;background:var(--teal);color:white;border-bottom-right-radius:4px;}.chat-message.alert{background:var(--red-light);color:#972a2a;border-color:var(--red-mid);}
+.chat-form{display:flex;gap:8px;align-items:flex-end;background:white;border:1px solid var(--border);padding:8px;border-radius:16px;box-shadow:var(--shadow);}.chat-form textarea{resize:none;min-height:42px;max-height:110px;flex:1;border:0;outline:0;font:600 14px 'Nunito',sans-serif;color:var(--text);padding:10px;background:transparent;}.chat-send{width:42px;height:42px;border:0;border-radius:12px;background:var(--teal);color:white;display:grid;place-items:center;cursor:pointer;flex:0 0 auto;}.chat-send:disabled{opacity:.55;cursor:wait;}
+.chat-privacy{font-size:10px;color:var(--text-soft);line-height:1.35;margin:9px 4px 0;text-align:center;}
 </style>
 </head>
 <body>
 <div class="phone">
+  <form id="logout-form" action="{% url 'logout' %}" method="post" style="display:none;">{% csrf_token %}</form>
 
 <!-- ══════ HOME ══════ -->
 <div class="page active" id="page-home">
@@ -204,7 +214,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
       <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
       VitalSync
     </div>
-    <button class="profile-btn" onclick="goTo('page-profile')">
+    <button class="profile-btn" onclick="goTo('page-profile')" aria-label="Abrir perfil">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
     </button>
   </div>
@@ -234,6 +244,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
         Activar Regulación
         <div class="nb-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>
       </button>
+      <button class="nav-btn nb-valores" onclick="goTo('page-chat')">
+        <div class="nbi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B92CF" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 014 11.5 8.5 8.5 0 0112.5 3a8.5 8.5 0 018.5 8.5z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg></div>
+        Asistente VitalSync AI
+        <div class="nb-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>
+      </button>
       <button class="nav-btn nb-emg" onclick="goTo('page-emergencia')">
         <div class="nbi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
         Asistencia Inmediata
@@ -244,6 +259,25 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
 </div>
 
 <!-- ══════ VALORES ══════ -->
+<div class="page" id="page-chat">
+  <div class="sub-header">
+    <button class="back-btn" onclick="goTo('page-home')" aria-label="Volver"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <span class="sub-title">Asistente VitalSync</span>
+    <span class="badge b-blue">AI</span>
+  </div>
+  <div class="chat-body">
+    <div class="chat-banner">VitalSync AI brinda información de salud, no asesoramiento médico. Si tienes síntomas graves, llama al 9-1-1 o acude a emergencias.</div>
+    <div class="chat-messages" id="chat-messages" aria-live="polite">
+      <div class="chat-message bot">Hola, soy VitalSync Assistant. Puedo ayudarte a entender hábitos, bienestar y tus métricas registradas. ¿Qué te gustaría consultar?</div>
+    </div>
+    <form class="chat-form" id="chat-form">
+      <textarea id="chat-input" maxlength="2000" placeholder="Escribe tu pregunta..." aria-label="Mensaje para VitalSync AI"></textarea>
+      <button class="chat-send" id="chat-send" type="submit" aria-label="Enviar mensaje"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.7"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg></button>
+    </form>
+    <p class="chat-privacy">Al enviar un mensaje, se comparte tu consulta y los valores vitales actuales con Gemini para generar una respuesta. No se guarda el historial en VitalSync.</p>
+  </div>
+</div>
+
 <div class="page" id="page-valores">
   <div class="sub-header">
     <button class="back-btn" onclick="goTo('page-home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
@@ -379,7 +413,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
     <div class="p-ced" id="p-cd">Ingresa tu cédula abajo</div>
   </div>
   <div class="scroll-body">
-    <div class="card">
+    {% comment %}
+    <div class="card" hidden>
       <div class="eyebrow ey-t">Identificación · API Hacienda CR</div>
       <div style="font-size:15px;font-weight:700;margin-bottom:10px;">Buscar por cédula</div>
       <div class="inp-row" style="margin-bottom:8px;">
@@ -388,6 +423,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
       </div>
       <div id="ced-res"></div>
     </div>
+    {% endcomment %}
     <div class="card">
       <div class="eyebrow ey-t">Condiciones médicas</div>
       <div class="tag-wrap" id="cond-l"><span class="text-sm">Sin condiciones registradas.</span></div>
@@ -409,6 +445,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
       <div id="c-list"><p class="text-sm">Sin contactos registrados.</p></div>
       <button class="btn btn-outline mt14" onclick="openModal('modal-contact')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Agregar contacto</button>
     </div>
+    <button class="btn btn-ghost" onclick="document.getElementById('logout-form').submit()">Cerrar sesión</button>
+    {% if user.is_superuser %}<a class="btn btn-outline mt14" href="{% url 'register_user' %}" style="text-decoration:none;">Registrar usuario</a>{% endif %}
   </div>
 </div>
 
@@ -438,10 +476,31 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
 <div class="toast" id="toast"></div>
 </div>
 
+{{ dashboard_data|json_script:"dashboard-data" }}
 <script>
-const S={name:'Usuario',cedula:'',conds:[],meds:[],contacts:[],btOn:false,btIv:null,bType:null,bActive:false,bIv:null,bPhase:0,bTimer:0,bCycle:0,bTotal:5,lastPct:null};
+const dashboardData=JSON.parse(document.getElementById('dashboard-data').textContent);
+const S={name:dashboardData.name,cedula:dashboardData.cedula,conds:dashboardData.conditions,meds:dashboardData.medications,contacts:[],emergencyEmail:dashboardData.emergencyEmail,btOn:false,btIv:null,bType:null,bActive:false,bIv:null,bPhase:0,bTimer:0,bCycle:0,bTotal:5,lastPct:null};
+
+function hydrateDashboard(){
+  document.getElementById('p-av').textContent=S.name.charAt(0).toUpperCase();
+  document.getElementById('p-nm').textContent=S.name;
+  document.getElementById('p-cd').textContent='Cédula: '+S.cedula;
+  renderConds();renderMeds();renderContacts();
+  if(S.emergencyEmail){
+    const email=document.createElement('p');email.className='text-sm';email.textContent='Correo de emergencia: '+S.emergencyEmail;
+    document.getElementById('c-list').appendChild(email);
+  }
+}
 
 function goTo(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+
+const chatHistory=[];
+function addChatMessage(text,role,alert=false){const bubble=document.createElement('div');bubble.className='chat-message '+role+(alert?' alert':'');bubble.textContent=text;const box=document.getElementById('chat-messages');box.appendChild(bubble);box.scrollTop=box.scrollHeight;return bubble;}
+function currentMetrics(){const num=id=>{const el=document.getElementById(id);const value=el?Number(el.value):NaN;return Number.isFinite(value)&&el.value!==''?value:null;};return {systolic:num('sys'),diastolic:num('dia'),heart_rate:num('bpm'),anxiety_estimate:S.lastPct};}
+function csrfToken(){const entry=document.cookie.split('; ').find(row=>row.startsWith('csrftoken='));return entry?decodeURIComponent(entry.split('=').slice(1).join('=')):'';}
+async function sendChatMessage(event){event.preventDefault();const input=document.getElementById('chat-input'),send=document.getElementById('chat-send'),message=input.value.trim();if(!message||send.disabled)return;input.value='';addChatMessage(message,'user');chatHistory.push({role:'user',text:message});send.disabled=true;const waiting=addChatMessage('VitalSync Assistant está escribiendo…','bot');try{const response=await fetch('{% url "chat_api" %}',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken()},body:JSON.stringify({message,history:chatHistory.slice(0,-1),metrics:currentMetrics()})});const data=await response.json();waiting.remove();if(!response.ok)throw new Error(data.error||'No fue posible responder.');addChatMessage(data.reply,'bot',data.emergency);if(!data.emergency)chatHistory.push({role:'assistant',text:data.reply});}catch(error){waiting.remove();addChatMessage(error.message||'No fue posible conectar con el asistente.','bot',true);}finally{send.disabled=false;input.focus();}}
+document.getElementById('chat-form').addEventListener('submit',sendChatMessage);
+document.getElementById('chat-input').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();document.getElementById('chat-form').requestSubmit();}});
 
 // BT
 async function toggleBT(){
@@ -540,7 +599,7 @@ function openApp(a){closeModal('modal-ride');if(a==='uber'){window.location.href
 
 // PROFILE - CÉDULA API (con proxy CORS)
 // ── URL del backend Django local ──────────────────────────
-const DJANGO_API = '/api/cedulas';
+/* La búsqueda de perfiles se deshabilitó: la identidad se define al iniciar sesión.
 
 function searchCed(){
   const q=document.getElementById('ced-i').value.trim();
@@ -566,6 +625,7 @@ function searchCed(){
 }
 function selectP(name,ced){S.name=name;S.cedula=ced;document.getElementById('p-av').textContent=name.charAt(0).toUpperCase();document.getElementById('p-nm').textContent=name;document.getElementById('p-cd').textContent='Cédula: '+ced;document.getElementById('ced-res').innerHTML='';document.getElementById('ced-i').value='';showToast('✅ Perfil actualizado');}
 
+*/
 function addCond(){const v=document.getElementById('cond-i').value.trim();if(!v)return;S.conds.push(v);document.getElementById('cond-i').value='';renderConds();}
 function renderConds(){const el=document.getElementById('cond-l');if(!S.conds.length){el.innerHTML='<span class="text-sm">Sin condiciones registradas.</span>';return;}el.innerHTML=S.conds.map((c,i)=>`<span class="tag tag-t">${c}<span class="tag-x" onclick="S.conds.splice(${i},1);renderConds()">×</span></span>`).join('');}
 function addMed(){const v=document.getElementById('med-i').value.trim();if(!v)return;S.meds.push(v);document.getElementById('med-i').value='';renderMeds();}
@@ -582,6 +642,7 @@ function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 let _tt;
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3000);}
+hydrateDashboard();
 </script>
 </body>
 </html>
