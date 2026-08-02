@@ -20,6 +20,9 @@ if not SECRET_KEY:
 
 RAILWAY_PUBLIC_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
 ALLOWED_HOSTS = env_list('ALLOWED_HOSTS') or ([RAILWAY_PUBLIC_DOMAIN] if RAILWAY_PUBLIC_DOMAIN else ['localhost', '127.0.0.1'])
+# Railway utiliza este host interno al comprobar que el servicio está vivo.
+if 'healthcheck.railway.app' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('healthcheck.railway.app')
 CSRF_TRUSTED_ORIGINS = env_list('CSRF_TRUSTED_ORIGINS')
 if RAILWAY_PUBLIC_DOMAIN and not CSRF_TRUSTED_ORIGINS:
     CSRF_TRUSTED_ORIGINS = [f'https://{RAILWAY_PUBLIC_DOMAIN}']
