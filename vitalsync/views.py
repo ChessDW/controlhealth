@@ -1,16 +1,24 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.cache import cache
+from django.core.mail import send_mail
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 import json
 from django.shortcuts import redirect, render
 
 from cedulas_proxy.views import CedulaLookupError, get_cedula_data
 from .models import UserProfile
 from .chatbot import GeminiConfigurationError, GeminiRequestError, emergency_reply, generate_reply
+
+
+def healthcheck_view(request):
+    return HttpResponse('ok', content_type='text/plain')
 
 
 def _official_name(data):
@@ -159,3 +167,81 @@ def chatbot_view(request):
         return JsonResponse({'error': 'El asistente no está disponible en este momento. Inténtalo de nuevo pronto.'}, status=502)
 
     return JsonResponse({'reply': reply, 'emergency': False})
+
+
+@login_required
+@require_POST
+def emergency_alert_view(request):
+    """Envía una alerta limitada al correo de emergencia registrado."""
+    try:
+        payload = json.loads(request.body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': 'La solicitud no tiene un formato válido.'}, status=400)
+
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    if not profile.emergency_contact_email:
+        return JsonResponse({'error': 'No hay un correo de emergencia configurado para este perfil.'}, status=400)
+    if not settings.EMAIL_HOST or not settings.EMERGENCY_EMAIL_FROM:
+        return JsonResponse({'error': 'El envío de alertas aún no está configurado.'}, status=503)
+
+    rate_key = f'emergency-alert-rate-{request.user.pk}'
+    if cache.get(rate_key):
+        return JsonResponse({'error': 'Ya se envió una alerta. Espera 5 minutos antes de enviar otra.'}, status=429)
+
+    location = payload.get('location')
+    location_text = 'Ubicación no disponible (el usuario no la autorizó o el dispositivo no pudo obtenerla).'
+    if isinstance(location, dict):
+        latitude, longitude = location.get('latitude'), location.get('longitude')
+        if (isinstance(latitude, (int, float)) and not isinstance(latitude, bool) and
+                isinstance(longitude, (int, float)) and not isinstance(longitude, bool) and
+                -90 <= latitude <= 90 and -180 <= longitude <= 180):
+            location_text = f'Ubicación aproximada: https://maps.google.com/?q={latitude},{longitude}'
+
+    name = request.session.get('official_name') or request.user.get_full_name() or request.user.username
+    message = (
+        f'{name} dice que está en una emergencia.\n\n'
+        f'{location_text}\n\n'
+        'Esta alerta fue enviada desde VitalSync. Si crees que hay peligro inmediato, contacta al 9-1-1.'
+    )
+    try:
+        send_mail(
+            subject=f'Alerta de emergencia de {name}',
+            message=message,
+            from_email=settings.EMERGENCY_EMAIL_FROM,
+            recipient_list=[profile.emergency_contact_email],
+            fail_silently=False,
+        )
+    except Exception:
+        return JsonResponse({'error': 'No fue posible enviar la alerta. Intenta llamar al 9-1-1 o a tu contacto.'}, status=502)
+
+    cache.set(rate_key, True, timeout=60 * 5)
+    return JsonResponse({'sent': True})
+
+
+@login_required
+@require_POST
+def profile_update_view(request):
+    """Guarda los datos de perfil editables desde el panel."""
+    try:
+        payload = json.loads(request.body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': 'La solicitud no tiene un formato válido.'}, status=400)
+
+    email = str(payload.get('emergency_email', '')).strip()
+    if email:
+        try:
+            validate_email(email)
+        except ValidationError:
+            return JsonResponse({'error': 'Ingresa un correo de emergencia válido.'}, status=400)
+
+    def clean_list(value):
+        if not isinstance(value, list):
+            return []
+        return [str(item).strip()[:120] for item in value[:20] if str(item).strip()]
+
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    profile.emergency_contact_email = email
+    profile.medical_conditions = clean_list(payload.get('conditions'))
+    profile.current_medications = clean_list(payload.get('medications'))
+    profile.save()
+    return JsonResponse({'saved': True, 'emergency_email': profile.emergency_contact_email})

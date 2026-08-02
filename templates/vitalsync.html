@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VitalSync</title>
+<title>ControlHealth</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -212,7 +212,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
   <div class="home-header">
     <div class="logo">
       <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-      VitalSync
+      ControlHealth
     </div>
     <button class="profile-btn" onclick="goTo('page-profile')" aria-label="Abrir perfil">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -246,7 +246,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
       </button>
       <button class="nav-btn nb-valores" onclick="goTo('page-chat')">
         <div class="nbi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B92CF" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 014 11.5 8.5 8.5 0 0112.5 3a8.5 8.5 0 018.5 8.5z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg></div>
-        Asistente VitalSync AI
+        Asistente ControlHealth AI
         <div class="nb-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>
       </button>
       <button class="nav-btn nb-emg" onclick="goTo('page-emergencia')">
@@ -262,19 +262,19 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
 <div class="page" id="page-chat">
   <div class="sub-header">
     <button class="back-btn" onclick="goTo('page-home')" aria-label="Volver"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
-    <span class="sub-title">Asistente VitalSync</span>
+    <span class="sub-title">Asistente ControlHealth</span>
     <span class="badge b-blue">AI</span>
   </div>
   <div class="chat-body">
-    <div class="chat-banner">VitalSync AI brinda información de salud, no asesoramiento médico. Si tienes síntomas graves, llama al 9-1-1 o acude a emergencias.</div>
+    <div class="chat-banner">ControlHealth AI brinda información de salud, no asesoramiento médico. Si tienes síntomas graves, llama al 9-1-1 o acude a emergencias.</div>
     <div class="chat-messages" id="chat-messages" aria-live="polite">
-      <div class="chat-message bot">Hola, soy VitalSync Assistant. Puedo ayudarte a entender hábitos, bienestar y tus métricas registradas. ¿Qué te gustaría consultar?</div>
+      <div class="chat-message bot">Hola, soy ControlHealth Assistant. Puedo ayudarte a entender hábitos, bienestar y tus métricas registradas. ¿Qué te gustaría consultar?</div>
     </div>
     <form class="chat-form" id="chat-form">
-      <textarea id="chat-input" maxlength="2000" placeholder="Escribe tu pregunta..." aria-label="Mensaje para VitalSync AI"></textarea>
+      <textarea id="chat-input" maxlength="2000" placeholder="Escribe tu pregunta..." aria-label="Mensaje para ControlHealth AI"></textarea>
       <button class="chat-send" id="chat-send" type="submit" aria-label="Enviar mensaje"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.7"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg></button>
     </form>
-    <p class="chat-privacy">Al enviar un mensaje, se comparte tu consulta y los valores vitales actuales con Gemini para generar una respuesta. No se guarda el historial en VitalSync.</p>
+    <p class="chat-privacy">Al enviar un mensaje, se comparte tu consulta y los valores vitales actuales con Gemini para generar una respuesta. No se guarda el historial en ControlHealth.</p>
   </div>
 </div>
 
@@ -378,6 +378,10 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
       <div class="eyebrow ey-r"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>¿Necesitas ayuda urgente?</div>
       <div class="csub">Accede rápidamente a servicios de emergencia disponibles en tu zona.</div>
     </div>
+    <button class="emg-btn emg-911" id="emergency-alert-btn" onclick="registerEmergencyTap()">
+      <div class="emg-ib"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 9v4m0 4h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg></div>
+      <div class="emg-info"><div class="emg-title" id="emergency-alert-title">Avisar a mi contacto</div><div class="emg-sub" id="emergency-alert-sub">Pulsa 3 veces para enviar tu ubicación por correo</div></div>
+    </button>
     <button class="emg-btn emg-911" onclick="call911()">
       <div class="emg-ib"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 013.08 4.18 2 2 0 015.07 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
       <div class="emg-info"><div class="emg-title">Llamar al 911</div><div class="emg-sub">Emergencias · Cruz Roja · Bomberos</div></div>
@@ -443,6 +447,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
     <div class="card">
       <div class="eyebrow ey-r">Contactos de emergencia</div>
       <div id="c-list"><p class="text-sm">Sin contactos registrados.</p></div>
+      <div class="iw mt10"><input type="email" id="emergency-email" placeholder="Correo para recibir alertas de emergencia" autocomplete="email"></div>
+      <p class="text-sm" style="margin:8px 0 0;">Este correo recibirá tu ubicación al activar la alerta.</p>
       <button class="btn btn-outline mt14" onclick="openModal('modal-contact')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Agregar contacto</button>
     </div>
     <button class="btn btn-ghost" onclick="document.getElementById('logout-form').submit()">Cerrar sesión</button>
@@ -487,6 +493,7 @@ function hydrateDashboard(){
   document.getElementById('p-cd').textContent='Cédula: '+S.cedula;
   renderConds();renderMeds();renderContacts();
   if(S.emergencyEmail){
+    document.getElementById('emergency-email').value=S.emergencyEmail;
     const email=document.createElement('p');email.className='text-sm';email.textContent='Correo de emergencia: '+S.emergencyEmail;
     document.getElementById('c-list').appendChild(email);
   }
@@ -498,7 +505,7 @@ const chatHistory=[];
 function addChatMessage(text,role,alert=false){const bubble=document.createElement('div');bubble.className='chat-message '+role+(alert?' alert':'');bubble.textContent=text;const box=document.getElementById('chat-messages');box.appendChild(bubble);box.scrollTop=box.scrollHeight;return bubble;}
 function currentMetrics(){const num=id=>{const el=document.getElementById(id);const value=el?Number(el.value):NaN;return Number.isFinite(value)&&el.value!==''?value:null;};return {systolic:num('sys'),diastolic:num('dia'),heart_rate:num('bpm'),anxiety_estimate:S.lastPct};}
 function csrfToken(){const entry=document.cookie.split('; ').find(row=>row.startsWith('csrftoken='));return entry?decodeURIComponent(entry.split('=').slice(1).join('=')):'';}
-async function sendChatMessage(event){event.preventDefault();const input=document.getElementById('chat-input'),send=document.getElementById('chat-send'),message=input.value.trim();if(!message||send.disabled)return;input.value='';addChatMessage(message,'user');chatHistory.push({role:'user',text:message});send.disabled=true;const waiting=addChatMessage('VitalSync Assistant está escribiendo…','bot');try{const response=await fetch('{% url "chat_api" %}',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken()},body:JSON.stringify({message,history:chatHistory.slice(0,-1),metrics:currentMetrics()})});const data=await response.json();waiting.remove();if(!response.ok)throw new Error(data.error||'No fue posible responder.');addChatMessage(data.reply,'bot',data.emergency);if(!data.emergency)chatHistory.push({role:'assistant',text:data.reply});}catch(error){waiting.remove();addChatMessage(error.message||'No fue posible conectar con el asistente.','bot',true);}finally{send.disabled=false;input.focus();}}
+async function sendChatMessage(event){event.preventDefault();const input=document.getElementById('chat-input'),send=document.getElementById('chat-send'),message=input.value.trim();if(!message||send.disabled)return;input.value='';addChatMessage(message,'user');chatHistory.push({role:'user',text:message});send.disabled=true;const waiting=addChatMessage('ControlHealth Assistant está escribiendo…','bot');try{const response=await fetch('{% url "chat_api" %}',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken()},body:JSON.stringify({message,history:chatHistory.slice(0,-1),metrics:currentMetrics()})});const data=await response.json();waiting.remove();if(!response.ok)throw new Error(data.error||'No fue posible responder.');addChatMessage(data.reply,'bot',data.emergency);if(!data.emergency)chatHistory.push({role:'assistant',text:data.reply});}catch(error){waiting.remove();addChatMessage(error.message||'No fue posible conectar con el asistente.','bot',true);}finally{send.disabled=false;input.focus();}}
 document.getElementById('chat-form').addEventListener('submit',sendChatMessage);
 document.getElementById('chat-input').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();document.getElementById('chat-form').requestSubmit();}});
 
@@ -594,6 +601,18 @@ function stopBreath(){clearInterval(S.bIv);S.bActive=false;}
 
 // EMERGENCY
 function call911(){window.location.href='tel:911';showToast('📞 Llamando al 911…');}
+let emergencyTaps=0,emergencyTapTimer;
+function registerEmergencyTap(){
+  emergencyTaps++;clearTimeout(emergencyTapTimer);
+  const title=document.getElementById('emergency-alert-title'),sub=document.getElementById('emergency-alert-sub');
+  if(emergencyTaps<3){title.textContent=`Confirma la alerta (${emergencyTaps}/3)`;sub.textContent='Pulsa de nuevo para confirmar';emergencyTapTimer=setTimeout(resetEmergencyTaps,6000);return;}
+  emergencyTaps=0;title.textContent='Enviando alerta…';sub.textContent='Solicitando ubicación';
+  const send=location=>fetch('{% url "emergency_alert" %}',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken()},body:JSON.stringify({location})})
+    .then(async response=>{const data=await response.json();if(!response.ok)throw new Error(data.error||'No fue posible enviar la alerta.');title.textContent='Alerta enviada';sub.textContent='Tu contacto fue notificado por correo';showToast('🚨 Alerta enviada a tu contacto de emergencia');setTimeout(resetEmergencyTaps,5000);})
+    .catch(error=>{title.textContent='No se pudo enviar';sub.textContent=error.message;setTimeout(resetEmergencyTaps,6000);});
+  if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>send({latitude:p.coords.latitude,longitude:p.coords.longitude}),()=>send(null),{enableHighAccuracy:true,timeout:10000,maximumAge:60000});}else{send(null);}
+}
+function resetEmergencyTaps(){emergencyTaps=0;const title=document.getElementById('emergency-alert-title'),sub=document.getElementById('emergency-alert-sub');if(title){title.textContent='Avisar a mi contacto';sub.textContent='Pulsa 3 veces para enviar tu ubicación por correo';}}
 function findPharmacy(){if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>window.open(`https://www.google.com/maps/search/farmacias/@${p.coords.latitude},${p.coords.longitude},15z`,'_blank'),()=>window.open('https://www.google.com/maps/search/farmacias+cerca/','_blank'));}else{window.open('https://www.google.com/maps/search/farmacias+cerca/','_blank');}}
 function openApp(a){closeModal('modal-ride');if(a==='uber'){window.location.href='uber://';setTimeout(()=>window.open('https://www.uber.com/cr/es/','_blank'),600);}else{window.location.href='didiglobal://';setTimeout(()=>window.open('https://web.didiglobal.com/','_blank'),600);}}
 
@@ -636,7 +655,14 @@ function renderContacts(){
   document.getElementById('c-list').innerHTML=html||'<p class="text-sm">Sin contactos registrados.</p>';
   document.getElementById('emg-c-list').innerHTML=S.contacts.length?html:'<div class="text-sm">Sin contactos. <span style="color:var(--teal);cursor:pointer;font-weight:700;" onclick="goTo(\'page-profile\')">Agregar →</span></div>';
 }
-function saveProfile(){showToast('💾 Perfil guardado');}
+async function saveProfile(){
+  const email=document.getElementById('emergency-email').value.trim();
+  try{
+    const response=await fetch('{% url "profile_update" %}',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken()},body:JSON.stringify({emergency_email:email,conditions:S.conds,medications:S.meds})});
+    const data=await response.json();if(!response.ok)throw new Error(data.error||'No fue posible guardar el perfil.');
+    S.emergencyEmail=data.emergency_email;renderContacts();if(S.emergencyEmail){const note=document.createElement('p');note.className='text-sm';note.textContent='Correo de emergencia: '+S.emergencyEmail;document.getElementById('c-list').appendChild(note);}showToast('💾 Perfil guardado');
+  }catch(error){showToast(error.message||'No fue posible guardar el perfil.');}
+}
 
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}

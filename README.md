@@ -65,6 +65,10 @@ Abre `http://localhost:8000` en tu navegador.
 
 - `GEMINI_API_KEY`: clave de API para el asistente de IA
 - `GEMINI_MODEL`: modelo de Gemini a usar (por defecto `gemini-2.5-flash`)
+- `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`: credenciales SMTP para las alertas de emergencia.
+- `EMERGENCY_EMAIL_FROM`: dirección remitente de esas alertas (normalmente la misma cuenta SMTP).
+
+El botón de emergencia envía un correo al contacto de emergencia configurado para el usuario después de tres pulsaciones realizadas en seis segundos. Si el usuario autoriza la ubicación, el correo incluye un enlace a Google Maps. El envío se limita a una alerta cada cinco minutos por usuario.
 
 
 ## Uso
@@ -96,3 +100,22 @@ Abre `http://localhost:8000` en tu navegador.
 - Django==5.1.15
 - django-cors-headers==4.9.0
 - requests==2.32.5
+
+## Despliegue en Railway
+
+El repositorio incluye `railway.json`: Railway instala las dependencias, recopila archivos estáticos, aplica las migraciones y arranca Gunicorn. Crea un servicio PostgreSQL en el mismo proyecto y define en el servicio web:
+
+```text
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+SECRET_KEY=<clave larga y aleatoria>
+DEBUG=false
+GEMINI_API_KEY=<tu clave Gemini>
+EMAIL_HOST=<host SMTP>
+EMAIL_PORT=587
+EMAIL_HOST_USER=<usuario SMTP>
+EMAIL_HOST_PASSWORD=<contraseña de aplicación SMTP>
+EMAIL_USE_TLS=true
+EMERGENCY_EMAIL_FROM=<correo remitente>
+```
+
+Después de generar el dominio público de Railway, define también `ALLOWED_HOSTS` con el dominio sin `https://` y `CSRF_TRUSTED_ORIGINS` con la URL completa. No configures `RAILWAY_PUBLIC_DOMAIN` manualmente: Railway lo proporciona al generar el dominio.
