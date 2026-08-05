@@ -45,7 +45,7 @@ def login_view(request):
         user = authenticate(request, username=cedula, password=password)
         if user is None:
             if not User.objects.filter(username=cedula).exists():
-                error_message = 'La cédula no está registrada en VitalSync.'
+                error_message = 'La cédula no está registrada en ControlHealth.'
             else:
                 error_message = 'La contraseña es incorrecta.'
         else:
@@ -118,6 +118,34 @@ def register_user_view(request):
             context['success_message'] = f'Usuario con cédula {cedula} registrado correctamente.'
 
     return render(request, 'register_user.html', context)
+
+
+@login_required
+def manage_users_view(request):
+    """Permite al administrador restablecer contraseñas sin usar Django Admin."""
+    if not request.user.is_superuser:
+        return HttpResponseForbidden('Solo el superusuario puede administrar usuarios.')
+
+    context = {'error_message': '', 'success_message': '', 'users': User.objects.order_by('username')}
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id', '')
+        password = request.POST.get('password', '')
+        password_confirmation = request.POST.get('password_confirmation', '')
+        try:
+            target_user = User.objects.get(pk=user_id)
+        except (User.DoesNotExist, ValueError):
+            context['error_message'] = 'El usuario seleccionado no existe.'
+        else:
+            if len(password) < 8:
+                context['error_message'] = 'La contraseña debe tener al menos 8 caracteres.'
+            elif password != password_confirmation:
+                context['error_message'] = 'Las contraseñas no coinciden.'
+            else:
+                target_user.set_password(password)
+                target_user.save(update_fields=['password'])
+                context['success_message'] = f'Contraseña actualizada para {target_user.username}.'
+
+    return render(request, 'manage_users.html', context)
 
 
 @login_required
