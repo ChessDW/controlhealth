@@ -119,3 +119,9 @@ EMERGENCY_EMAIL_FROM=<correo remitente>
 ```
 
 Después de generar el dominio público de Railway, define también `ALLOWED_HOSTS` con el dominio sin `https://` y `CSRF_TRUSTED_ORIGINS` con la URL completa. No configures `RAILWAY_PUBLIC_DOMAIN` manualmente: Railway lo proporciona al generar el dominio.
+
+## Despliegue en Render
+
+El archivo `render.yaml` crea un servicio web y una base de datos PostgreSQL mediante un Blueprint. En Render, selecciona **New → Blueprint**, conecta este repositorio y confirma la configuración. Render define automáticamente el dominio de su servicio y VitalSync lo usa para `ALLOWED_HOSTS` y CSRF.
+
+Antes del primer despliegue, introduce en Render los valores secretos solicitados: `GEMINI_API_KEY`, `EMAIL_HOST`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` y `EMERGENCY_EMAIL_FROM`.
