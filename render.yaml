@@ -3,7 +3,7 @@ services:
     name: vitalsync
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py bootstrap_admin
     startCommand: gunicorn vitalsync.wsgi:application --bind 0.0.0.0:$PORT
     healthCheckPath: /health/
     envVars:
@@ -30,6 +30,10 @@ services:
       - key: EMAIL_USE_TLS
         value: "true"
       - key: EMERGENCY_EMAIL_FROM
+        sync: false
+      - key: BOOTSTRAP_ADMIN_USERNAME
+        sync: false
+      - key: BOOTSTRAP_ADMIN_PASSWORD
         sync: false
 
 databases:

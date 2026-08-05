@@ -125,3 +125,5 @@ Después de generar el dominio público de Railway, define también `ALLOWED_HOS
 El archivo `render.yaml` crea un servicio web y una base de datos PostgreSQL mediante un Blueprint. En Render, selecciona **New → Blueprint**, conecta este repositorio y confirma la configuración. Render define automáticamente el dominio de su servicio y VitalSync lo usa para `ALLOWED_HOSTS` y CSRF.
 
 Antes del primer despliegue, introduce en Render los valores secretos solicitados: `GEMINI_API_KEY`, `EMAIL_HOST`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` y `EMERGENCY_EMAIL_FROM`.
+
+Si no tienes acceso a Render Shell, agrega temporalmente `BOOTSTRAP_ADMIN_USERNAME` (la cédula que usarás para entrar) y `BOOTSTRAP_ADMIN_PASSWORD`. El siguiente despliegue creará ese administrador. Elimina ambas variables después de confirmar el acceso.
