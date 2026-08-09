@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ControlHealth</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal:#19A97B;--teal-dark:#13855F;--teal-light:#E6F7F1;--teal-mid:#A8E0CE;
+  --yellow:#F6C544;--yellow-light:#FEF9EC;--yellow-mid:#FAE29A;
+  --red:#E84545;--red-dark:#C43030;--red-light:#FDEAEA;--red-mid:#F5AAAA;
+  --blue-light:#EBF4FB;--blue-mid:#B4D8F0;--blue:#3B92CF;
+  --white:#FFFFFF;--bg:#F5F7FA;--card:#FFFFFF;
+  --text:#1C2B3A;--text-mid:#4A5E6D;--text-soft:#8FA3B1;--border:#E2EAF0;
+  --shadow:0 4px 20px rgba(25,169,123,.10),0 1px 4px rgba(0,0,0,.05);
+  --shadow-h:0 8px 32px rgba(25,169,123,.18),0 2px 8px rgba(0,0,0,.08);
+  --r:20px;--r-sm:12px;--r-pill:999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);display:flex;justify-content:center;min-height:100vh;}
+.phone{width:100%;max-width:420px;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.page{display:none;flex-direction:column;min-height:100vh;animation:fadeIn .28s ease;}
+.page.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+.sub-header{padding:16px 20px 14px;display:flex;align-items:center;gap:14px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:40;}
+.back-btn{width:38px;height:38px;border-radius:50%;border:none;background:var(--bg);color:var(--teal);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.back-btn:hover{background:var(--teal-light);}
+.sub-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--text);flex:1;}
+.badge{padding:4px 12px;border-radius:var(--r-pill);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;}
+.b-blue{background:var(--blue-light);color:var(--blue);}
+.b-yellow{background:var(--yellow-light);color:#8B6200;}
+.b-red{background:var(--red-light);color:var(--red);}
+.b-teal{background:var(--teal-light);color:var(--teal);}
+
+.scroll-body{flex:1;overflow-y:auto;padding:20px 20px 32px;}
+
+/* CARD */
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);padding:20px;margin-bottom:14px;}
+.card-teal{background:var(--teal-light);border-color:var(--teal-mid);}
+.card-yellow{background:var(--yellow-light);border-color:var(--yellow-mid);}
+.card-red{background:var(--red-light);border-color:var(--red-mid);}
+.card-blue{background:var(--blue-light);border-color:var(--blue-mid);}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.ey-t{color:var(--teal)}.ey-y{color:#8B6200}.ey-r{color:var(--red)}.ey-b{color:var(--blue)}
+.ctitle{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:4px;}
+.csub{font-size:13px;color:var(--text-mid);line-height:1.55;}
+
+/* FORM */
+.lbl{font-size:12px;font-weight:800;color:var(--text-mid);margin-bottom:6px;display:block;letter-spacing:.03em;}
+.inp-row{display:flex;gap:10px;margin-bottom:14px;}
+.iw{flex:1;position:relative;}
+.iw input{width:100%;padding:13px 14px;border-radius:var(--r-sm);border:1.5px solid var(--border);font-size:16px;font-family:'Nunito',sans-serif;font-weight:700;background:var(--bg);color:var(--text);outline:none;transition:border .2s,box-shadow .2s;}
+.iw input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(25,169,123,.12);background:var(--white);}
+.iu{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;color:var(--text-soft);letter-spacing:.04em;}
+.auto-chip{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--teal-light);border:1.5px solid var(--teal-mid);border-radius:var(--r-sm);font-size:15px;font-weight:700;color:var(--teal);margin-bottom:14px;}
+.chip-badge{padding:2px 8px;background:var(--teal);color:white;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.05em;}
+
+/* SEGMENTED CONTROL */
+.seg-row{display:flex;gap:8px;}
+.seg-btn{flex:1;padding:10px 8px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--bg);color:var(--text-mid);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;}
+.seg-btn:hover{border-color:var(--teal-mid);}
+.seg-btn.on{background:var(--teal);border-color:var(--teal);color:white;}
+
+/* EDU */
+.edu-item{background:var(--card);border-radius:var(--r-sm);border:1px solid var(--border);padding:16px;margin-bottom:10px;}
+.edu-q{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.edu-a{font-size:13px;color:var(--text-mid);line-height:1.55;}
+.edu-a b{color:var(--text);}
+
+/* MED ENTRY */
+.med-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:14px;margin-bottom:10px;}
+.med-name{font-weight:800;font-size:14px;color:var(--text);}
+.med-meta{font-size:12px;color:var(--text-soft);margin-top:2px;}
+.med-flag{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:3px 9px;border-radius:20px;background:var(--yellow-light);color:#8B6200;font-size:10px;font-weight:800;letter-spacing:.03em;}
+.med-x{float:right;cursor:pointer;color:var(--text-soft);font-weight:800;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-lbl{font-size:14px;font-weight:700;color:var(--text);}
+.switch{position:relative;width:44px;height:26px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;inset:0;background:var(--border);border-radius:999px;transition:.2s;}
+.slider::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.switch input:checked+.slider{background:var(--teal);}
+.switch input:checked+.slider::before{transform:translateX(18px);}
+.sel-inp{width:100%;padding:13px 14px;border-radius:var(--r-sm);border:1.5px solid var(--border);font-size:14px;font-family:'Nunito',sans-serif;font-weight:700;background:var(--bg);color:var(--text);outline:none;}
+
+/* SCALE */
+.scale-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.scale-pct{font-size:20px;font-weight:800;color:var(--teal);transition:color .4s;}
+.scale-track{height:16px;border-radius:var(--r-pill);position:relative;overflow:visible;background:linear-gradient(90deg,#19A97B 0%,#F6C544 50%,#E84545 100%);}
+.scale-thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;background:white;border:3.5px solid var(--teal);box-shadow:0 2px 10px rgba(0,0,0,.14);transition:left .7s cubic-bezier(.34,1.56,.64,1),border-color .4s;}
+.scale-labels{display:flex;justify-content:space-between;font-size:10px;font-weight:800;color:var(--text-soft);margin-top:6px;}
+.anxiety-msg{margin-top:12px;padding:12px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:600;line-height:1.5;transition:all .4s;}
+
+/* BTN */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:var(--r-sm);font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;border:none;cursor:pointer;transition:all .2s;}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(0)}
+.btn-teal{background:var(--teal);color:white;box-shadow:0 4px 16px rgba(25,169,123,.3);}
+.btn-teal:hover{background:var(--teal-dark);}
+.btn-outline{background:transparent;color:var(--teal);border:2px solid var(--teal);}
+.btn-outline:hover{background:var(--teal-light);}
+.btn-ghost{background:var(--bg);color:var(--text-mid);border:1.5px solid var(--border);}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-light);}
+
+/* EXERCISE */
+.ex-card{display:flex;align-items:center;gap:14px;padding:16px;border-radius:var(--r-sm);background:var(--card);border:1.5px solid var(--border);cursor:pointer;margin-bottom:10px;transition:all .2s;}
+.ex-card:hover{border-color:var(--teal);background:var(--teal-light);}
+.ex-icon{width:50px;height:50px;border-radius:14px;background:var(--teal-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ex-info{flex:1}
+.ex-name{font-size:14px;font-weight:800;color:var(--text);}
+.ex-desc{font-size:12px;color:var(--text-soft);margin-top:2px;}
+.ex-dur{font-size:12px;font-weight:800;color:var(--teal);}
+
+/* BREATHING */
+.breath-page{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.breath-ring{width:200px;height:200px;border-radius:50%;background:radial-gradient(circle at 40% 40%,var(--teal-mid),var(--teal-light));display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform 1.2s ease-in-out,box-shadow 1.2s ease-in-out;box-shadow:0 0 0 0 rgba(25,169,123,.15);margin-bottom:28px;}
+.breath-ring.inhale{transform:scale(1.22);box-shadow:0 0 0 22px rgba(25,169,123,.08);}
+.breath-ring.exhale{transform:scale(1);box-shadow:0 0 0 0 rgba(25,169,123,0);}
+.bp-txt{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--teal);}
+.bp-num{font-size:42px;font-weight:300;color:var(--teal);}
+.b-cycles{display:flex;gap:7px;justify-content:center;margin-bottom:16px;}
+.b-dot{width:9px;height:9px;border-radius:50%;background:var(--teal-mid);transition:background .3s;}
+.b-dot.done{background:var(--teal);}
+.b-tip{font-size:13px;color:var(--text-mid);text-align:center;max-width:280px;line-height:1.6;margin-bottom:20px;}
+
+/* EMERGENCY */
+.emg-btn{width:100%;display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:var(--r);border:none;cursor:pointer;font-family:'Nunito',sans-serif;text-align:left;margin-bottom:12px;transition:all .22s;box-shadow:var(--shadow);}
+.emg-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-h);}
+.emg-btn:active{transform:translateY(0);}
+.emg-ib{width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.emg-info{flex:1}
+.emg-title{font-size:16px;font-weight:800;}
+.emg-sub{font-size:12px;margin-top:2px;opacity:.75;font-weight:600;}
+.emg-911{background:var(--red);color:white;}.emg-911 .emg-ib{background:rgba(255,255,255,.18);}
+.emg-farm{background:var(--teal-light);color:var(--teal);}.emg-farm .emg-ib{background:var(--teal-mid);}
+.emg-ride{background:var(--yellow-light);color:#7A5200;}.emg-ride .emg-ib{background:var(--yellow-mid);}
+
+/* PROFILE */
+.profile-hero{background:linear-gradient(135deg,var(--teal) 0%,#2BBFA0 100%);padding:28px 24px 24px;text-align:center;}
+.p-avatar{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.22);border:3px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:white;margin:0 auto 10px;}
+.p-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:white;}
+.p-ced{font-size:13px;color:rgba(255,255,255,.75);font-weight:600;margin-top:2px;}
+.sr{padding:12px 14px;border-radius:var(--r-sm);background:var(--bg);border:1.5px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all .2s;}
+.sr:hover{border-color:var(--teal);background:var(--teal-light);}
+.sr-name{font-weight:800;font-size:14px;}
+.sr-ced{font-size:12px;color:var(--text-soft);margin-top:2px;}
+.tag-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+.tag{padding:5px 12px;border-radius:var(--r-pill);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px;}
+.tag-t{background:var(--teal-light);color:var(--teal);}
+.tag-y{background:var(--yellow-light);color:#8B6200;}
+.tag-x{cursor:pointer;font-size:15px;line-height:1;opacity:.55;}
+.tag-x:hover{opacity:1;}
+.c-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.c-row:last-child{border-bottom:none;}
+.c-av{width:40px;height:40px;border-radius:50%;background:var(--teal-light);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--teal);flex-shrink:0;}
+.c-info{flex:1}.c-name{font-weight:800;font-size:14px;}.c-rel{font-size:12px;color:var(--text-soft);}
+.c-call{width:36px;height:36px;border-radius:50%;background:var(--teal-light);border:none;display:flex;align-items:center;justify-content:center;color:var(--teal);cursor:pointer;transition:background .2s;}
+.c-call:hover{background:var(--teal-mid);}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(28,43,58,.4);z-index:100;display:none;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;animation:fadeIn .2s;}
+.modal{background:white;border-radius:26px 26px 0 0;padding:22px 22px 36px;width:100%;max-width:420px;animation:slideUp .3s ease;max-height:88vh;overflow-y:auto;}
+@keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+.m-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px;}
+.m-title{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;margin-bottom:16px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:white;padding:10px 20px;border-radius:var(--r-pill);font-size:13px;font-weight:700;z-index:300;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* UTILS */
+.divider{height:1px;background:var(--border);margin:14px 0;}
+.mt10{margin-top:10px}.mt14{margin-top:14px}.mb10{margin-bottom:10px}.mb14{margin-bottom:14px}
+.flex{display:flex}.gap8{gap:8px}.flex1{flex:1}
+.text-sm{font-size:13px;color:var(--text-mid);}
+.text-xs{font-size:11px;color:var(--text-soft);font-weight:700;}
+
+/* ════ HOME PAGE ════ */
+.home-header{background:var(--white);padding:22px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--teal);display:flex;align-items:center;gap:9px;}
+.logo-icon{width:34px;height:34px;background:var(--teal);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.profile-btn{width:40px;height:40px;border-radius:50%;border:2px solid var(--teal-mid);background:var(--teal-light);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--teal);transition:all .2s;}
+.profile-btn:hover{background:var(--teal-mid);}
+
+.home-body{flex:1;display:flex;flex-direction:column;align-items:center;padding:28px 24px 32px;}
+.estado-lbl{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-soft);margin-bottom:18px;display:flex;align-items:center;gap:6px;}
+.estado-lbl strong{font-size:15px;font-weight:800;letter-spacing:.04em;}
+.lbl-calma strong{color:var(--teal)}.lbl-alerta strong{color:#C89610}.lbl-critico strong{color:var(--red)}
+
+/* Ring */
+.ring-wrap{width:218px;height:218px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:36px;transition:all .5s;}
+.ring-wrap::before{content:'';position:absolute;inset:0;border-radius:50%;border:14px solid currentColor;opacity:.18;}
+.ring-wrap::after{content:'';position:absolute;inset:10px;border-radius:50%;border:6px solid currentColor;opacity:.3;}
+.ring-calma{color:var(--teal)}.ring-alerta{color:var(--yellow)}.ring-critico{color:var(--red)}
+.ring-inner{width:152px;height:152px;border-radius:50%;background:var(--white);box-shadow:0 6px 28px rgba(0,0,0,.10);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:1;}
+.ring-ic{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .4s;}
+.ring-calma .ring-ic{background:var(--teal)}.ring-alerta .ring-ic{background:var(--yellow)}.ring-critico .ring-ic{background:var(--red)}
+.ring-word{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;transition:color .4s;}
+.ring-calma .ring-word{color:var(--teal)}.ring-alerta .ring-word{color:#C89610}.ring-critico .ring-word{color:var(--red)}
+
+/* BT pill */
+.bt-row{display:flex;justify-content:center;margin-bottom:28px;}
+.bt-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:var(--r-pill);background:var(--white);border:1.5px solid var(--border);font-size:13px;font-weight:700;color:var(--text-mid);cursor:pointer;box-shadow:var(--shadow);transition:all .2s;}
+.bt-pill:hover{border-color:var(--teal);color:var(--teal);}
+.bt-pill.on{border-color:var(--teal-mid);color:var(--teal);background:var(--teal-light);}
+.bt-dot{width:8px;height:8px;border-radius:50%;background:var(--text-soft);transition:background .3s;}
+.bt-dot.on{background:var(--teal);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Nav btns */
+.nav-btns{width:100%;display:flex;flex-direction:column;gap:12px;}
+.nav-btn{width:100%;padding:18px 22px;border-radius:var(--r);border:none;display:flex;align-items:center;gap:16px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;box-shadow:var(--shadow);transition:all .22s;text-align:left;}
+.nav-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-h);}
+.nav-btn:active{transform:translateY(0);}
+.nbi{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nb-arrow{margin-left:auto;opacity:.45;display:flex;align-items:center;}
+.nb-valores{background:var(--blue-light);color:var(--blue);}.nb-valores .nbi{background:rgba(59,146,207,.15);}
+.nb-reg{background:var(--yellow-light);color:#8B6200;}.nb-reg .nbi{background:rgba(246,197,68,.22);}
+.nb-emg{background:var(--red);color:white;box-shadow:0 6px 24px rgba(232,69,69,.35);}.nb-emg .nbi{background:rgba(255,255,255,.18);}
+
+/* AI CHAT */
+.chat-body{display:flex;flex:1;min-height:0;flex-direction:column;padding:16px 16px 20px;background:var(--bg);}
+.chat-banner{font-size:12px;line-height:1.45;color:#386155;background:var(--teal-light);border:1px solid var(--teal-mid);padding:10px 12px;border-radius:12px;margin-bottom:12px;}
+.chat-messages{display:flex;flex:1;min-height:280px;overflow-y:auto;flex-direction:column;gap:10px;padding:4px 2px 14px;}
+.chat-message{max-width:86%;padding:11px 13px;border-radius:15px;font-size:13px;line-height:1.5;white-space:pre-wrap;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.chat-message.bot{align-self:flex-start;background:white;border:1px solid var(--border);border-bottom-left-radius:4px;}.chat-message.user{align-self:flex-end;background:var(--teal);color:white;border-bottom-right-radius:4px;}.chat-message.alert{background:var(--red-light);color:#972a2a;border-color:var(--red-mid);}
+.chat-form{display:flex;gap:8px;align-items:flex-end;background:white;border:1px solid var(--border);padding:8px;border-radius:16px;box-shadow:var(--shadow);}.chat-form textarea{resize:none;min-height:42px;max-height:110px;flex:1;border:0;outline:0;font:600 14px 'Nunito',sans-serif;color:var(--text);padding:10px;background:transparent;}.chat-send{width:42px;height:42px;border:0;border-radius:12px;background:var(--teal);color:white;display:grid;place-items:center;cursor:pointer;flex:0 0 auto;}.chat-send:disabled{opacity:.55;cursor:wait;}
+.chat-privacy{font-size:10px;color:var(--text-soft);line-height:1.35;margin:9px 4px 0;text-align:center;}
+</style>
+</head>
+<body>
+<div class="phone">
+  <form id="logout-form" action="{% url 'logout' %}" method="post" style="display:none;">{% csrf_token %}</form>
+
+<!-- ══════ HOME ══════ -->
+<div class="page active" id="page-home">
+  <div class="home-header">
+    <div class="logo">
+      <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+      ControlHealth
+    </div>
+    <button class="profile-btn" onclick="goTo('page-profile')" aria-label="Abrir perfil">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </button>
+  </div>
+  <div class="home-body">
+    <div class="estado-lbl lbl-calma" id="h-estado">Estado: <strong id="h-etxt">CALMA ✔</strong></div>
+    <div class="ring-wrap ring-calma" id="h-ring">
+      <div class="ring-inner">
+        <div class="ring-ic" id="h-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="ring-word" id="h-word">Calma</div>
+      </div>
+    </div>
+    <div class="bt-row">
+      <div class="bt-pill" id="bt-pill" onclick="toggleBT()">
+        <div class="bt-dot" id="bt-dot"></div>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity:.55"><path d="M6.5 6.5l11 11M17.5 6.5L12 12l5.5 5.5M6.5 17.5L12 12"/></svg>
+        <span id="bt-lbl">Conectar pulsera</span>
+      </div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav-btn nb-valores" onclick="goTo('page-valores')">
+        <div class="nbi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B92CF" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        Ingresar Valores
+        <div class="nb-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>
+      </button>
+      <button class="nav-btn nb-reg" onclick="goTo('page-regulacion')">
+        <div class="nbi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C89610" stroke-width="2.5"><path d="M12 2C8 2 4 5.5 4 9.5c0 5 8 12.5 8 12.5s8-7.5 8-12.5C20 5.5 16 2 12 2z"/></svg></div>
+        Activar Regulación
+        <div class="nb-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>
+      </button>
+      <button class="nav-btn nb-valores" onclick="goTo('page-chat')">
+        <div class="nbi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B92CF" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 014 11.5 8.5 8.5 0 0112.5 3a8.5 8.5 0 018.5 8.5z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg></div>
+        Asistente ControlHealth AI
+        <div class="nb-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>
+      </button>
+      <button class="nav-btn nb-valores" onclick="goTo('page-educacion')">
+        <div class="nbi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B92CF" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></div>
+        Educación
+        <div class="nb-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>
+      </button>
+      <button class="nav-btn nb-emg" onclick="goTo('page-emergencia')">
+        <div class="nbi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        Asistencia Inmediata
+        <div class="nb-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ VALORES ══════ -->
+<div class="page" id="page-chat">
+  <div class="sub-header">
+    <button class="back-btn" onclick="goTo('page-home')" aria-label="Volver"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <span class="sub-title">Asistente ControlHealth</span>
+    <span class="badge b-blue">AI</span>
+  </div>
+  <div class="chat-body">
+    <div class="chat-banner">ControlHealth AI brinda información de salud, no asesoramiento médico. Si tienes síntomas graves, llama al 9-1-1 o acude a emergencias.</div>
+    <div class="chat-messages" id="chat-messages" aria-live="polite">
+      <div class="chat-message bot">Hola, soy ControlHealth Assistant. Puedo ayudarte a entender hábitos, bienestar y tus métricas registradas. ¿Qué te gustaría consultar?</div>
+    </div>
+    <form class="chat-form" id="chat-form">
+      <textarea id="chat-input" maxlength="2000" placeholder="Escribe tu pregunta..." aria-label="Mensaje para ControlHealth AI"></textarea>
+      <button class="chat-send" id="chat-send" type="submit" aria-label="Enviar mensaje"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.7"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg></button>
+    </form>
+    <p class="chat-privacy">Al enviar un mensaje, se comparte tu consulta y tu frecuencia cardíaca y presión arterial actuales con Gemini para generar una respuesta. No se guarda el historial en ControlHealth.</p>
+  </div>
+</div>
+
+<div class="page" id="page-valores">
+  <div class="sub-header">
+    <button class="back-btn" onclick="goTo('page-home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <span class="sub-title">Ingresar Valores</span>
+    <span class="badge b-blue">Frecuencia cardíaca</span>
+  </div>
+  <div class="scroll-body">
+    <div class="card card-teal mb10" id="bt-status-v" style="display:none;">
+      <div class="eyebrow ey-t"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Pulsera conectada</div>
+      <div style="font-size:13px;color:var(--teal);font-weight:700;">VitalBand Pro · BPM en tiempo real activo</div>
+    </div>
+    <div class="card">
+      <div class="eyebrow ey-b"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>Presión arterial</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text-mid);">Sistólica / Diastólica</div>
+      <div class="inp-row">
+        <div class="iw"><input type="number" id="sys" placeholder="120" min="60" max="220" oninput="calcA()"><span class="iu">SYS mmHg</span></div>
+        <div class="iw"><input type="number" id="dia" placeholder="80" min="40" max="130" oninput="calcA()"><span class="iu">DIA mmHg</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="eyebrow ey-t"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Frecuencia cardíaca</div>
+      <div id="bpm-mw"><div class="iw" style="margin-bottom:14px;"><input type="number" id="bpm" placeholder="72" min="30" max="220" oninput="calcA()"><span class="iu">BPM</span></div></div>
+      <div class="auto-chip" id="bpm-ac" style="display:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span id="bpm-live">-- bpm</span><span class="chip-badge">AUTO · LIVE</span></div>
+      <label class="lbl">Posición del cuerpo al medir</label>
+      <div class="seg-row" id="pos-row">
+        <button type="button" class="seg-btn on" data-pos="sentado" onclick="setPosition('sentado')">Sentado</button>
+        <button type="button" class="seg-btn" data-pos="parado" onclick="setPosition('parado')">Parado</button>
+        <button type="button" class="seg-btn" data-pos="acostado" onclick="setPosition('acostado')">Acostado</button>
+      </div>
+      <div class="csub" style="margin-top:8px;">La posición cambia la lectura: recuéstate o siéntate unos minutos antes de medir para mayor precisión.</div>
+    </div>
+    <div class="card">
+      <div class="eyebrow ey-b"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>Actividad y sueño</div>
+      <div class="inp-row">
+        <div class="iw"><input type="number" id="steps" placeholder="0" min="0" max="100000"><span class="iu">PASOS</span></div>
+        <div class="iw"><input type="number" id="sleep" placeholder="7" min="0" max="24" step="0.5"><span class="iu">HRS SUEÑO</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="eyebrow ey-t">Nivel de riesgo estimado</div>
+      <div class="scale-top"><span class="text-xs">Basado en tus valores</span><span class="scale-pct" id="s-pct">--</span></div>
+      <div class="scale-track"><div class="scale-thumb" id="s-thumb" style="left:50%;"></div></div>
+      <div class="scale-labels"><span>Bajo</span><span>Moderado</span><span>Alto</span></div>
+      <div class="anxiety-msg" id="a-msg" style="background:var(--bg);color:var(--text-mid);">Ingresa tus valores para ver tu nivel estimado.</div>
+    </div>
+    <button class="btn btn-teal" onclick="analyzeAndReturn()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Analizar y guardar</button>
+  </div>
+</div>
+
+<!-- ══════ EDUCACION ══════ -->
+<div class="page" id="page-educacion">
+  <div class="sub-header">
+    <button class="back-btn" onclick="goTo('page-home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <span class="sub-title">Educación</span>
+    <span class="badge b-blue">Frecuencia cardíaca</span>
+  </div>
+  <div class="scroll-body">
+    <div class="edu-item">
+      <div class="edu-q">¿Qué es la frecuencia cardíaca?</div>
+      <div class="edu-a">Es la cantidad de veces que late tu corazón en un minuto (lpm). Un reloj o pulsera solo da una <b>aproximación</b>; no reemplaza una medición clínica.</div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-q">¿Cuáles son los rangos normales?</div>
+      <div class="edu-a">En adultos sanos mayores de 18 años, lo normal en reposo es <b>60–100 lpm</b>. En personas atletas puede ser <b>40–60 lpm</b>, porque su corazón es más fuerte y bombea más sangre por latido.</div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-q">¿Qué es la taquicardia?</div>
+      <div class="edu-a">Frecuencia cardíaca en reposo <b>mayor a 100 lpm</b>.</div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-q">¿Qué es la bradicardia?</div>
+      <div class="edu-a">Frecuencia por debajo de lo normal para esa persona, sostenida en reposo durante <b>5 a 10 minutos</b>. En quienes no son atletas, esto puede merecer atención médica.</div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-q">¿Por qué puede cambiar?</div>
+      <div class="edu-a">El corazón es un músculo y su fuerza y tamaño varían de persona a persona. <b>No todos los hipertensos tienen frecuencia cardíaca alta</b>, y no a todas las personas la ansiedad les acelera el corazón de la misma forma — por eso esta app no compara a todos con el mismo rango, sino con tu propio historial.</div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-q">¿Qué factores influyen (sin ser una enfermedad)?</div>
+      <div class="edu-a">El clima, la deshidratación y las emociones pueden subir o bajar tu frecuencia cardíaca sin que eso signifique un problema de salud.</div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-q">¿Qué medicamentos pueden modificarla?</div>
+      <div class="edu-a">Algunos medicamentos (por ejemplo para la presión arterial o el ritmo cardíaco) pueden acelerar o disminuir tu frecuencia. Regístralos en tu perfil y marca cuáles la afectan para que la app los tome en cuenta.</div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-q">¿Qué posición debe tener el cuerpo para medirla correctamente?</div>
+      <div class="edu-a">Sentado, parado o acostado — cada posición cambia la lectura. Para comparar valores de forma justa, mide siempre en la misma posición y anótala en la pantalla de "Ingresar Valores".</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ REGULACION ══════ -->
+<div class="page" id="page-regulacion">
+  <div class="sub-header">
+    <button class="back-btn" onclick="goTo('page-home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <span class="sub-title">Activar Regulación</span>
+    <span class="badge b-yellow">Respiración</span>
+  </div>
+  <div class="scroll-body">
+    <div class="card card-yellow mb10">
+      <div class="eyebrow ey-y">¿Para qué sirve?</div>
+      <div class="csub">Los ejercicios de respiración ayudan a regular el sistema nervioso, reducir el cortisol y bajar la frecuencia cardíaca en pocos minutos.</div>
+    </div>
+    <div class="ex-card" onclick="startBreath('478')">
+      <div class="ex-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+      <div class="ex-info"><div class="ex-name">Técnica 4-7-8</div><div class="ex-desc">Inhala 4s · Sostén 7s · Exhala 8s</div></div>
+      <div class="ex-dur">~5 min</div>
+    </div>
+    <div class="ex-card" onclick="startBreath('box')">
+      <div class="ex-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/></svg></div>
+      <div class="ex-info"><div class="ex-name">Respiración cuadrada</div><div class="ex-desc">4s inhala · 4s sostén · 4s exhala · 4s pausa</div></div>
+      <div class="ex-dur">~4 min</div>
+    </div>
+    <div class="ex-card" onclick="startBreath('diaphragm')">
+      <div class="ex-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12"/><path d="M2 12c0 2.8 1.2 5.3 3 7"/></svg></div>
+      <div class="ex-info"><div class="ex-name">Diafragmática</div><div class="ex-desc">Inhala profundo 5s · Exhala suave 6s</div></div>
+      <div class="ex-dur">~3 min</div>
+    </div>
+    <div class="ex-card" onclick="startBreath('coherence')">
+      <div class="ex-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg></div>
+      <div class="ex-info"><div class="ex-name">Coherencia cardíaca</div><div class="ex-desc">Inhala 5s · Exhala 5s · Ritmo constante</div></div>
+      <div class="ex-dur">~5 min</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ BREATHING ACTIVE ══════ -->
+<div class="page" id="page-breathing">
+  <div class="sub-header">
+    <button class="back-btn" onclick="stopBreath();goTo('page-regulacion')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <span class="sub-title" id="b-title">Técnica 4-7-8</span>
+    <span class="badge b-teal" id="b-badge">5 min</span>
+  </div>
+  <div class="breath-page">
+    <div class="breath-ring" id="b-ring" onclick="startBreathCycle()">
+      <div class="bp-txt" id="b-phase">Toca para iniciar</div>
+      <div class="bp-num" id="b-num">--</div>
+    </div>
+    <div class="b-cycles" id="b-cycles"></div>
+    <p class="b-tip" id="b-tip">Siéntate cómodamente y cierra los ojos.</p>
+    <button class="btn btn-ghost" style="width:auto;padding:10px 28px;" onclick="stopBreath();goTo('page-regulacion')">Terminar ejercicio</button>
+  </div>
+</div>
+
+<!-- ══════ EMERGENCIA ══════ -->
+<div class="page" id="page-emergencia">
+  <div class="sub-header">
+    <button class="back-btn" onclick="goTo('page-home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <span class="sub-title">Asistencia Inmediata</span>
+    <span class="badge b-red">Emergencia</span>
+  </div>
+  <div class="scroll-body">
+    <div class="card card-red mb10">
+      <div class="eyebrow ey-r"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>¿Necesitas ayuda urgente?</div>
+      <div class="csub">Accede rápidamente a servicios de emergencia disponibles en tu zona.</div>
+    </div>
+    <button class="emg-btn emg-911" id="emergency-alert-btn" onclick="registerEmergencyTap()">
+      <div class="emg-ib"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 9v4m0 4h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg></div>
+      <div class="emg-info"><div class="emg-title" id="emergency-alert-title">Avisar a mi contacto</div><div class="emg-sub" id="emergency-alert-sub">Pulsa 3 veces para enviar tu ubicación por correo</div></div>
+    </button>
+    <button class="emg-btn emg-911" onclick="call911()">
+      <div class="emg-ib"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 013.08 4.18 2 2 0 015.07 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+      <div class="emg-info"><div class="emg-title">Llamar al 911</div><div class="emg-sub">Emergencias · Cruz Roja · Bomberos</div></div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="emg-btn emg-farm" onclick="findPharmacy()">
+      <div class="emg-ib"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <div class="emg-info"><div class="emg-title">Farmacias cercanas</div><div class="emg-sub">Localizar con Google Maps</div></div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2.5" style="opacity:.4"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="emg-btn emg-ride" onclick="openModal('modal-ride')">
+      <div class="emg-ib"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8B6200" stroke-width="2.5"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+      <div class="emg-info"><div class="emg-title">Pedir transporte</div><div class="emg-sub">Abrir Uber o DiDi</div></div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B6200" stroke-width="2.5" style="opacity:.4"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <div class="card mt10">
+      <div class="eyebrow ey-r">Contactos de emergencia</div>
+      <div id="emg-c-list"><div class="text-sm">Sin contactos. <span style="color:var(--teal);cursor:pointer;font-weight:700;" onclick="goTo('page-profile')">Agregar en perfil →</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PROFILE ══════ -->
+<div class="page" id="page-profile">
+  <div class="sub-header">
+    <button class="back-btn" onclick="goTo('page-home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <span class="sub-title">Mi Perfil</span>
+    <button class="back-btn" onclick="saveProfile()" style="background:var(--teal);color:white;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
+  </div>
+  <div class="profile-hero">
+    <div class="p-avatar" id="p-av">?</div>
+    <div class="p-name" id="p-nm">Sin nombre</div>
+    <div class="p-ced" id="p-cd">Ingresa tu cédula abajo</div>
+  </div>
+  <div class="scroll-body">
+    {% comment %}
+    <div class="card" hidden>
+      <div class="eyebrow ey-t">Identificación · API Hacienda CR</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:10px;">Buscar por cédula</div>
+      <div class="inp-row" style="margin-bottom:8px;">
+        <div class="iw flex1"><input type="text" id="ced-i" placeholder="Ej: 1-1234-5678 o nombre" onkeydown="if(event.key==='Enter')searchCed()"></div>
+        <button class="btn btn-teal" style="width:auto;padding:0 18px;" onclick="searchCed()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></button>
+      </div>
+      <div id="ced-res"></div>
+    </div>
+    {% endcomment %}
+    <div class="card">
+      <div class="eyebrow ey-b">Personalización</div>
+      <div class="csub" style="margin-bottom:12px;">Estos datos ayudan a que la alerta de ansiedad se base en tu comportamiento normal, no en un rango genérico.</div>
+      <div class="inp-row">
+        <div class="iw"><input type="number" id="p-age" placeholder="Edad" min="0" max="120"><span class="iu">AÑOS</span></div>
+        <div class="iw"><select id="p-sex" class="sel-inp"><option value="">Sexo</option><option value="F">Femenino</option><option value="M">Masculino</option><option value="O">Otro</option></select></div>
+      </div>
+      <div class="iw mb14"><input type="number" id="p-rhr" placeholder="Ej: 68" min="30" max="220"><span class="iu">FC HABITUAL (LPM)</span></div>
+      <div class="toggle-row"><span class="toggle-lbl">Soy atleta</span><label class="switch"><input type="checkbox" id="p-athlete"><span class="slider"></span></label></div>
+      <div class="toggle-row"><span class="toggle-lbl">Estilo de vida sedentario</span><label class="switch"><input type="checkbox" id="p-sedentary"><span class="slider"></span></label></div>
+      <div class="toggle-row"><span class="toggle-lbl">Sobrepeso</span><label class="switch"><input type="checkbox" id="p-overweight"><span class="slider"></span></label></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow ey-t">Condiciones médicas</div>
+      <div class="tag-wrap" id="cond-l"><span class="text-sm">Sin condiciones registradas.</span></div>
+      <div class="inp-row mt10">
+        <div class="iw flex1"><input type="text" id="cond-i" placeholder="Ej: Hipertensión, Diabetes…" onkeydown="if(event.key==='Enter')addCond()"></div>
+        <button class="btn btn-outline" style="width:auto;padding:0 16px;" onclick="addCond()">+</button>
+      </div>
+    </div>
+    <div class="card card-yellow">
+      <div class="eyebrow ey-y">Medicamentos</div>
+      <div id="med-l"><span class="text-sm">Sin medicamentos registrados.</span></div>
+      <div style="margin:12px 0 8px;">
+        <div class="inp-row">
+          <div class="iw flex1"><input type="text" id="med-generic" placeholder="Nombre genérico"></div>
+          <div class="iw flex1"><input type="text" id="med-commercial" placeholder="Nombre comercial"></div>
+        </div>
+        <div class="inp-row">
+          <div class="iw"><input type="number" id="med-times" placeholder="2" min="0" max="20"><span class="iu">VECES/DÍA</span></div>
+          <div class="iw"><input type="number" id="med-dosage" placeholder="50" min="0" max="5000"><span class="iu">MG</span></div>
+        </div>
+        <div class="toggle-row" style="padding:6px 0;"><span class="toggle-lbl" style="font-size:13px;">Afecta la frecuencia cardíaca</span><label class="switch"><input type="checkbox" id="med-affects"><span class="slider"></span></label></div>
+        <div class="toggle-row" style="padding:6px 0 12px;"><span class="toggle-lbl" style="font-size:13px;">Activo (lo tomo actualmente)</span><label class="switch"><input type="checkbox" id="med-active" checked><span class="slider"></span></label></div>
+        <button class="btn btn-outline" onclick="addMed()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Agregar medicamento</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="eyebrow ey-r">Contactos de emergencia</div>
+      <div id="c-list"><p class="text-sm">Sin contactos registrados.</p></div>
+      <div class="iw mt10"><input type="email" id="emergency-email" placeholder="Correo para recibir alertas de emergencia" autocomplete="email"></div>
+      <p class="text-sm" style="margin:8px 0 0;">Este correo recibirá tu ubicación al activar la alerta.</p>
+      <button class="btn btn-outline mt14" onclick="openModal('modal-contact')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Agregar contacto</button>
+    </div>
+    <button class="btn btn-ghost" onclick="document.getElementById('logout-form').submit()">Cerrar sesión</button>
+    {% if user.is_superuser %}<a class="btn btn-outline mt14" href="{% url 'register_user' %}" style="text-decoration:none;">Registrar usuario</a><a class="btn btn-outline mt10" href="{% url 'manage_users' %}" style="text-decoration:none;">Administrar usuarios</a>{% endif %}
+  </div>
+</div>
+
+<!-- MODAL RIDE -->
+<div class="overlay" id="modal-ride" onclick="closeModal('modal-ride')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="m-handle"></div>
+    <div class="m-title">Pedir transporte</div>
+    <p class="text-sm mb14">Selecciona la aplicación:</p>
+    <button class="btn btn-teal mb10" onclick="openApp('uber')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/></svg>Abrir Uber</button>
+    <button class="btn btn-ghost" onclick="openApp('didi')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/></svg>Abrir DiDi</button>
+  </div>
+</div>
+
+<!-- MODAL CONTACT -->
+<div class="overlay" id="modal-contact" onclick="closeModal('modal-contact')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="m-handle"></div>
+    <div class="m-title">Nuevo contacto</div>
+    <div style="margin-bottom:12px;"><label class="lbl">Nombre completo</label><div class="iw"><input type="text" id="cn-n" placeholder="Nombre del contacto"></div></div>
+    <div style="margin-bottom:12px;"><label class="lbl">Teléfono</label><div class="iw"><input type="tel" id="cn-p" placeholder="+506 8888-8888"></div></div>
+    <div style="margin-bottom:16px;"><label class="lbl">Relación</label><div class="iw"><input type="text" id="cn-r" placeholder="Ej: Mamá, Médico…"></div></div>
+    <button class="btn btn-teal" onclick="saveContact()">Guardar contacto</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+</div>
+
+{{ dashboard_data|json_script:"dashboard-data" }}
+<script>
+const dashboardData=JSON.parse(document.getElementById('dashboard-data').textContent);
+const S={name:dashboardData.name,cedula:dashboardData.cedula,conds:dashboardData.conditions,meds:dashboardData.medications,contacts:[],emergencyEmail:dashboardData.emergencyEmail,profile:dashboardData.profile||{},position:'sentado',btOn:false,btIv:null,bType:null,bActive:false,bIv:null,bPhase:0,bTimer:0,bCycle:0,bTotal:5,lastPct:null};
+
+function hydrateDashboard(){
+  document.getElementById('p-av').textContent=S.name.charAt(0).toUpperCase();
+  document.getElementById('p-nm').textContent=S.name;
+  document.getElementById('p-cd').textContent='Cédula: '+S.cedula;
+  renderConds();renderMeds();renderContacts();
+  const p=S.profile||{};
+  if(p.age)document.getElementById('p-age').value=p.age;
+  if(p.sex)document.getElementById('p-sex').value=p.sex;
+  if(p.restingHeartRate)document.getElementById('p-rhr').value=p.restingHeartRate;
+  document.getElementById('p-athlete').checked=!!p.isAthlete;
+  document.getElementById('p-sedentary').checked=!!p.isSedentary;
+  document.getElementById('p-overweight').checked=!!p.isOverweight;
+  if(S.emergencyEmail){
+    document.getElementById('emergency-email').value=S.emergencyEmail;
+    const email=document.createElement('p');email.className='text-sm';email.textContent='Correo de emergencia: '+S.emergencyEmail;
+    document.getElementById('c-list').appendChild(email);
+  }
+}
+
+function setPosition(pos){
+  S.position=pos;
+  document.querySelectorAll('#pos-row .seg-btn').forEach(b=>b.classList.toggle('on',b.dataset.pos===pos));
+}
+
+function goTo(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+
+const chatHistory=[];
+function addChatMessage(text,role,alert=false){const bubble=document.createElement('div');bubble.className='chat-message '+role+(alert?' alert':'');bubble.textContent=text;const box=document.getElementById('chat-messages');box.appendChild(bubble);box.scrollTop=box.scrollHeight;return bubble;}
+function currentMetrics(){const num=id=>{const el=document.getElementById(id);const value=el?Number(el.value):NaN;return Number.isFinite(value)&&el.value!==''?value:null;};return {systolic:num('sys'),diastolic:num('dia'),heart_rate:num('bpm'),anxiety_estimate:S.lastPct,position:S.position,steps:num('steps'),sleep_hours:num('sleep')};}
+function csrfToken(){const entry=document.cookie.split('; ').find(row=>row.startsWith('csrftoken='));return entry?decodeURIComponent(entry.split('=').slice(1).join('=')):'';}
+async function sendChatMessage(event){event.preventDefault();const input=document.getElementById('chat-input'),send=document.getElementById('chat-send'),message=input.value.trim();if(!message||send.disabled)return;input.value='';addChatMessage(message,'user');chatHistory.push({role:'user',text:message});send.disabled=true;const waiting=addChatMessage('ControlHealth Assistant está escribiendo…','bot');try{const response=await fetch('{% url "chat_api" %}',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken()},body:JSON.stringify({message,history:chatHistory.slice(0,-1),metrics:currentMetrics()})});const data=await response.json();waiting.remove();if(!response.ok)throw new Error(data.error||'No fue posible responder.');addChatMessage(data.reply,'bot',data.emergency);if(!data.emergency)chatHistory.push({role:'assistant',text:data.reply});}catch(error){waiting.remove();addChatMessage(error.message||'No fue posible conectar con el asistente.','bot',true);}finally{send.disabled=false;input.focus();}}
+document.getElementById('chat-form').addEventListener('submit',sendChatMessage);
+document.getElementById('chat-input').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();document.getElementById('chat-form').requestSubmit();}});
+
+// BT
+async function toggleBT(){
+  if(S.btOn){disconnectBT();return;}
+  if(!navigator.bluetooth){showToast('⚠️ Usa Chrome o Edge para Bluetooth');return;}
+  try{
+    showToast('🔍 Buscando dispositivos...');
+    const device=await navigator.bluetooth.requestDevice({
+      filters:[{services:['heart_rate']}],
+      optionalServices:['heart_rate']
+    });
+    S.btDevice=device;
+    device.addEventListener('gattserverdisconnected',()=>disconnectBT());
+    const server=await device.gatt.connect();
+    const service=await server.getPrimaryService('heart_rate');
+    const char=await service.getCharacteristic('heart_rate_measurement');
+    await char.startNotifications();
+    char.addEventListener('characteristicvaluechanged',onBTData);
+    S.btChar=char;S.btOn=true;
+    const pill=document.getElementById('bt-pill'),dot=document.getElementById('bt-dot'),lbl=document.getElementById('bt-lbl');
+    pill.classList.add('on');dot.classList.add('on');
+    lbl.textContent=device.name||'Dispositivo conectado';
+    document.getElementById('bt-status-v').style.display='block';
+    document.getElementById('bpm-mw').style.display='none';
+    document.getElementById('bpm-ac').style.display='flex';
+    showToast('✅ Pulsera conectada');
+  }catch(e){
+    if(e.name!=='NotFoundError')showToast('❌ '+e.message);
+  }
+}
+function onBTData(e){
+  const val=e.target.value,flags=val.getUint8(0);
+  const bpm=(flags&0x01)?val.getUint16(1,true):val.getUint8(1);
+  document.getElementById('bpm-live').textContent=bpm+' bpm';
+  document.getElementById('bpm').value=bpm;calcA();
+}
+function disconnectBT(){
+  if(S.btDevice&&S.btDevice.gatt.connected)S.btDevice.gatt.disconnect();
+  S.btOn=false;S.btDevice=null;S.btChar=null;
+  document.getElementById('bt-pill').classList.remove('on');
+  document.getElementById('bt-dot').classList.remove('on');
+  document.getElementById('bt-lbl').textContent='Conectar pulsera';
+  document.getElementById('bt-status-v').style.display='none';
+  document.getElementById('bpm-ac').style.display='none';
+  document.getElementById('bpm-mw').style.display='block';
+  showToast('🔌 Pulsera desconectada');
+}
+
+// ANXIETY
+function calcA(){
+  const sys=parseFloat(document.getElementById('sys').value)||null;
+  const bpm=parseFloat(document.getElementById('bpm').value)||null;
+  if(!sys&&!bpm)return;
+  const prof=S.profile||{};
+  // Umbrales de frecuencia cardíaca personalizados: atletas y quienes tienen
+  // una FC habitual registrada se comparan contra su propio comportamiento normal,
+  // no contra un rango genérico de ">100 lpm".
+  let base=prof.restingHeartRate||(prof.isAthlete?55:75);
+  let lowCut=prof.isAthlete?45:60, midCut=base+15, highCut=prof.isAthlete?70:100, veryHighCut=130;
+  let sc=0,n=0;
+  if(bpm){
+    if(bpm<lowCut)sc+=.3;
+    else if(bpm<=midCut)sc+=.15;
+    else if(bpm<=highCut)sc+=.5;
+    else if(bpm<=veryHighCut)sc+=.75;
+    else sc+=1;
+    n++;
+  }
+  if(sys){if(sys<90)sc+=.4;else if(sys<=120)sc+=.15;else if(sys<=139)sc+=.5;else if(sys<=160)sc+=.78;else sc+=1;n++;}
+  const p=Math.round(Math.min(1,sc/n)*100);
+  S.lastPct=p;
+  document.getElementById('s-thumb').style.left=p+'%';
+  document.getElementById('s-pct').textContent=p+'%';
+  const msg=document.getElementById('a-msg'),pEl=document.getElementById('s-pct'),th=document.getElementById('s-thumb');
+  if(p<33){pEl.style.color='var(--teal)';th.style.borderColor='var(--teal)';msg.style.cssText='background:var(--teal-light);color:var(--teal-dark);';msg.innerHTML='🟢 <strong>Nivel bajo.</strong> Tu frecuencia cardíaca y presión arterial están en un rango saludable para ti.';}
+  else if(p<65){pEl.style.color='#C89610';th.style.borderColor='var(--yellow)';msg.style.cssText='background:var(--yellow-light);color:#7A5200;';msg.innerHTML='🟡 <strong>Nivel moderado.</strong> Considera un ejercicio de respiración para regular tu estado.';}
+  else{pEl.style.color='var(--red)';th.style.borderColor='var(--red)';msg.style.cssText='background:var(--red-light);color:#9A2020;';msg.innerHTML='🔴 <strong>Nivel alto.</strong> Se recomiendan técnicas de relajación urgentes o contactar a tu médico.';}
+}
+function analyzeAndReturn(){
+  const sys=document.getElementById('sys').value,bpm=document.getElementById('bpm').value;
+  if(!sys||!bpm){showToast('⚠️ Ingresa presión y frecuencia');return;}
+  calcA();updateHomeRing(S.lastPct);showToast('📊 Valores analizados');setTimeout(()=>goTo('page-home'),900);
+}
+function updateHomeRing(p){
+  const ring=document.getElementById('h-ring'),word=document.getElementById('h-word'),ic=document.getElementById('h-ic'),estado=document.getElementById('h-estado'),etxt=document.getElementById('h-etxt');
+  ring.className='ring-wrap';estado.className='estado-lbl';
+  if(!p||p<33){ring.classList.add('ring-calma');word.textContent='Calma';estado.classList.add('lbl-calma');etxt.textContent='CALMA ✔';ic.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';}
+  else if(p<65){ring.classList.add('ring-alerta');word.textContent='Alerta';estado.classList.add('lbl-alerta');etxt.textContent='ALERTA ⚠';ic.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';}
+  else{ring.classList.add('ring-critico');word.textContent='Crítico';estado.classList.add('lbl-critico');etxt.textContent='CRÍTICO ⚠';ic.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';}
+}
+
+// BREATHING
+const BR={'478':{title:'Técnica 4-7-8',badge:'~5 min',phases:[{n:'Inhala',d:4},{n:'Sostén',d:7},{n:'Exhala',d:8}],tip:'Inhala por la nariz, sostén la respiración, exhala por la boca con un sonido "whoosh".'},
+'box':{title:'Respiración cuadrada',badge:'~4 min',phases:[{n:'Inhala',d:4},{n:'Sostén',d:4},{n:'Exhala',d:4},{n:'Pausa',d:4}],tip:'Visualiza los lados de un cuadrado. Usada por atletas y fuerzas especiales.'},
+'diaphragm':{title:'Diafragmática',badge:'~3 min',phases:[{n:'Inhala',d:5},{n:'Exhala',d:6}],tip:'Pon una mano en el abdomen. Siéntelo subir al inhalar y bajar al exhalar.'},
+'coherence':{title:'Coherencia cardíaca',badge:'~5 min',phases:[{n:'Inhala',d:5},{n:'Exhala',d:5}],tip:'Mantén el ritmo constante. Ideal para reducir el cortisol y equilibrar el corazón.'}};
+
+function startBreath(t){S.bType=t;S.bActive=false;S.bPhase=0;S.bTimer=0;S.bCycle=0;clearInterval(S.bIv);const c=BR[t];document.getElementById('b-title').textContent=c.title;document.getElementById('b-badge').textContent=c.badge;document.getElementById('b-tip').textContent=c.tip;document.getElementById('b-phase').textContent='Toca para iniciar';document.getElementById('b-num').textContent='--';document.getElementById('b-ring').className='breath-ring';renderBC(0);goTo('page-breathing');}
+function renderBC(d){const w=document.getElementById('b-cycles');w.innerHTML='';for(let i=0;i<S.bTotal;i++){const e=document.createElement('div');e.className='b-dot'+(i<d?' done':'');w.appendChild(e);}}
+function startBreathCycle(){if(S.bActive)return;S.bActive=true;S.bPhase=0;S.bTimer=0;runBPhase();}
+function runBPhase(){clearInterval(S.bIv);const phases=BR[S.bType].phases,ph=phases[S.bPhase];S.bTimer=ph.d;updBreathUI(ph);S.bIv=setInterval(()=>{S.bTimer--;document.getElementById('b-num').textContent=S.bTimer;if(S.bTimer<=0){S.bPhase++;if(S.bPhase>=phases.length){S.bPhase=0;S.bCycle++;renderBC(S.bCycle);if(S.bCycle>=S.bTotal){clearInterval(S.bIv);S.bActive=false;document.getElementById('b-phase').textContent='¡Completado! 🎉';document.getElementById('b-num').textContent='';document.getElementById('b-ring').className='breath-ring';showToast('🌿 ¡Ejercicio completado!');return;}}const nx=phases[S.bPhase];S.bTimer=nx.d;updBreathUI(nx);}},1000);}
+function updBreathUI(ph){document.getElementById('b-phase').textContent=ph.n;document.getElementById('b-num').textContent=ph.d;const r=document.getElementById('b-ring');r.className='breath-ring';r.classList.add(ph.n==='Inhala'||ph.n==='Sostén'?'inhale':'exhale');}
+function stopBreath(){clearInterval(S.bIv);S.bActive=false;}
+
+// EMERGENCY
+function call911(){window.location.href='tel:911';showToast('📞 Llamando al 911…');}
+let emergencyTaps=0,emergencyTapTimer;
+function registerEmergencyTap(){
+  emergencyTaps++;clearTimeout(emergencyTapTimer);
+  const title=document.getElementById('emergency-alert-title'),sub=document.getElementById('emergency-alert-sub');
+  if(emergencyTaps<3){title.textContent=`Confirma la alerta (${emergencyTaps}/3)`;sub.textContent='Pulsa de nuevo para confirmar';emergencyTapTimer=setTimeout(resetEmergencyTaps,6000);return;}
+  emergencyTaps=0;title.textContent='Enviando alerta…';sub.textContent='Solicitando ubicación';
+  const send=location=>fetch('{% url "emergency_alert" %}',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken()},body:JSON.stringify({location})})
+    .then(async response=>{const data=await response.json();if(!response.ok)throw new Error(data.error||'No fue posible enviar la alerta.');title.textContent='Alerta enviada';sub.textContent='Tu contacto fue notificado por correo';showToast('🚨 Alerta enviada a tu contacto de emergencia');setTimeout(resetEmergencyTaps,5000);})
+    .catch(error=>{title.textContent='No se pudo enviar';sub.textContent=error.message;setTimeout(resetEmergencyTaps,6000);});
+  if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>send({latitude:p.coords.latitude,longitude:p.coords.longitude}),()=>send(null),{enableHighAccuracy:true,timeout:10000,maximumAge:60000});}else{send(null);}
+}
+function resetEmergencyTaps(){emergencyTaps=0;const title=document.getElementById('emergency-alert-title'),sub=document.getElementById('emergency-alert-sub');if(title){title.textContent='Avisar a mi contacto';sub.textContent='Pulsa 3 veces para enviar tu ubicación por correo';}}
+function findPharmacy(){if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>window.open(`https://www.google.com/maps/search/farmacias/@${p.coords.latitude},${p.coords.longitude},15z`,'_blank'),()=>window.open('https://www.google.com/maps/search/farmacias+cerca/','_blank'));}else{window.open('https://www.google.com/maps/search/farmacias+cerca/','_blank');}}
+function openApp(a){closeModal('modal-ride');if(a==='uber'){window.location.href='uber://';setTimeout(()=>window.open('https://www.uber.com/cr/es/','_blank'),600);}else{window.location.href='didiglobal://';setTimeout(()=>window.open('https://web.didiglobal.com/','_blank'),600);}}
+
+// PROFILE - CÉDULA API (con proxy CORS)
+// ── URL del backend Django local ──────────────────────────
+/* La búsqueda de perfiles se deshabilitó: la identidad se define al iniciar sesión.
+
+function searchCed(){
+  const q=document.getElementById('ced-i').value.trim();
+  if(!q){showToast('⚠️ Ingresa cédula o nombre');return;}
+  const res=document.getElementById('ced-res');
+  res.innerHTML='<div class="text-sm" style="margin-top:8px;color:var(--text-soft);">Buscando en Hacienda CR…</div>';
+  fetch(`${DJANGO_API}/${encodeURIComponent(q)}/`)
+    .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(data=>{
+      res.innerHTML='';
+      const list=data.results||[];
+      if(!list.length){res.innerHTML='<div class="text-sm" style="margin-top:8px;color:var(--text-soft);">Sin resultados.</div>';return;}
+      list.slice(0,6).forEach(item=>{
+        const name=item.name||item.nombre||item.fullname||'—';
+        const ced=item.cedula||item.id||item.identificacion||'—';
+        const d=document.createElement('div');d.className='sr';
+        d.innerHTML=`<div class="sr-name">${name}</div><div class="sr-ced">Cédula: ${ced}</div>`;
+        d.onclick=()=>selectP(name,ced);
+        res.appendChild(d);
+      });
+    })
+    .catch(()=>{res.innerHTML='<div class="text-sm" style="margin-top:8px;color:var(--red);">Error al consultar. Verifica tu conexión.</div>';});
+}
+function selectP(name,ced){S.name=name;S.cedula=ced;document.getElementById('p-av').textContent=name.charAt(0).toUpperCase();document.getElementById('p-nm').textContent=name;document.getElementById('p-cd').textContent='Cédula: '+ced;document.getElementById('ced-res').innerHTML='';document.getElementById('ced-i').value='';showToast('✅ Perfil actualizado');}
+
+*/
+function addCond(){const v=document.getElementById('cond-i').value.trim();if(!v)return;S.conds.push(v);document.getElementById('cond-i').value='';renderConds();}
+function renderConds(){const el=document.getElementById('cond-l');if(!S.conds.length){el.innerHTML='<span class="text-sm">Sin condiciones registradas.</span>';return;}el.innerHTML=S.conds.map((c,i)=>`<span class="tag tag-t">${c}<span class="tag-x" onclick="S.conds.splice(${i},1);renderConds()">×</span></span>`).join('');}
+function addMed(){
+  const generic=document.getElementById('med-generic').value.trim();
+  const commercial=document.getElementById('med-commercial').value.trim();
+  if(!generic&&!commercial){showToast('⚠️ Ingresa al menos un nombre');return;}
+  S.meds.push({
+    generic_name:generic,
+    commercial_name:commercial,
+    times_per_day:Number(document.getElementById('med-times').value)||0,
+    dosage_mg:Number(document.getElementById('med-dosage').value)||0,
+    affects_heart_rate:document.getElementById('med-affects').checked,
+    active:document.getElementById('med-active').checked,
+  });
+  document.getElementById('med-generic').value='';
+  document.getElementById('med-commercial').value='';
+  document.getElementById('med-times').value='';
+  document.getElementById('med-dosage').value='';
+  document.getElementById('med-affects').checked=false;
+  document.getElementById('med-active').checked=true;
+  renderMeds();
+}
+function removeMed(i){S.meds.splice(i,1);renderMeds();}
+function renderMeds(){
+  const el=document.getElementById('med-l');
+  if(!S.meds.length){el.innerHTML='<span class="text-sm">Sin medicamentos registrados.</span>';return;}
+  el.innerHTML=S.meds.map((m,i)=>{
+    const name=[m.generic_name,m.commercial_name].filter(Boolean).join(' · ')||'Medicamento';
+    const meta=[];
+    if(m.dosage_mg)meta.push(`${m.dosage_mg} mg`);
+    if(m.times_per_day)meta.push(`${m.times_per_day}x al día`);
+    const flags=[];
+    if(m.affects_heart_rate)flags.push('<span class="med-flag">⚠️ Afecta la FC</span>');
+    if(m.active===false)flags.push('<span class="med-flag" style="background:var(--border);color:var(--text-mid);">Inactivo</span>');
+    return `<div class="med-card"><span class="med-x" onclick="removeMed(${i})">×</span><div class="med-name">${name}</div><div class="med-meta">${meta.join(' · ')||'Sin dosis registrada'}</div>${flags.join(' ')}</div>`;
+  }).join('');
+}
+function saveContact(){const n=document.getElementById('cn-n').value.trim(),p=document.getElementById('cn-p').value.trim(),r=document.getElementById('cn-r').value.trim();if(!n||!p){showToast('⚠️ Nombre y teléfono requeridos');return;}S.contacts.push({name:n,phone:p,rel:r});document.getElementById('cn-n').value='';document.getElementById('cn-p').value='';document.getElementById('cn-r').value='';closeModal('modal-contact');renderContacts();showToast('✅ Contacto guardado');}
+function renderContacts(){
+  const html=S.contacts.map(c=>`<div class="c-row"><div class="c-av">${c.name.charAt(0).toUpperCase()}</div><div class="c-info"><div class="c-name">${c.name}</div><div class="c-rel">${c.rel} · ${c.phone}</div></div><button class="c-call" onclick="window.location.href='tel:${c.phone}'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 013.08 4.18 2 2 0 015.07 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></button></div>`).join('');
+  document.getElementById('c-list').innerHTML=html||'<p class="text-sm">Sin contactos registrados.</p>';
+  document.getElementById('emg-c-list').innerHTML=S.contacts.length?html:'<div class="text-sm">Sin contactos. <span style="color:var(--teal);cursor:pointer;font-weight:700;" onclick="goTo(\'page-profile\')">Agregar →</span></div>';
+}
+async function saveProfile(){
+  const email=document.getElementById('emergency-email').value.trim();
+  const payload={
+    emergency_email:email,
+    conditions:S.conds,
+    medications:S.meds,
+    age:document.getElementById('p-age').value||null,
+    sex:document.getElementById('p-sex').value||'',
+    resting_heart_rate:document.getElementById('p-rhr').value||null,
+    is_athlete:document.getElementById('p-athlete').checked,
+    is_sedentary:document.getElementById('p-sedentary').checked,
+    is_overweight:document.getElementById('p-overweight').checked,
+  };
+  try{
+    const response=await fetch('{% url "profile_update" %}',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken()},body:JSON.stringify(payload)});
+    const data=await response.json();if(!response.ok)throw new Error(data.error||'No fue posible guardar el perfil.');
+    S.emergencyEmail=data.emergency_email;
+    if(data.profile)S.profile=data.profile;
+    renderContacts();if(S.emergencyEmail){const note=document.createElement('p');note.className='text-sm';note.textContent='Correo de emergencia: '+S.emergencyEmail;document.getElementById('c-list').appendChild(note);}showToast('💾 Perfil guardado');
+  }catch(error){showToast(error.message||'No fue posible guardar el perfil.');}
+}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+let _tt;
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3000);}
+hydrateDashboard();
+</script>
+</body>
+</html>
