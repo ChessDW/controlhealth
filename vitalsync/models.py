@@ -31,3 +31,18 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f'Perfil de {self.user.username}'
+
+
+class HeartRateMeasurement(models.Model):
+    """Lectura de frecuencia cardíaca recibida desde un dispositivo BLE."""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='heart_rate_measurements')
+    bpm = models.PositiveSmallIntegerField()
+    device_name = models.CharField(max_length=120, blank=True)
+    recorded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-recorded_at']
+
+    def __str__(self):
+        return f'{self.user.username}: {self.bpm} bpm'
