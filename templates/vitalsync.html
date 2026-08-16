@@ -634,8 +634,8 @@ document.getElementById('chat-form').addEventListener('submit',sendChatMessage);
 document.getElementById('chat-input').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();document.getElementById('chat-form').requestSubmit();}});
 
 // BLE: protocolo Nordic UART emitido por MonitorCardiaco_ESP32.
-const BLE_SERVICE_UUID='6E400001-B5A3-F393-E0A9-E50E24DCCA9E';
-const BLE_TX_UUID='6E400003-B5A3-F393-E0A9-E50E24DCCA9E';
+const BLE_SERVICE_UUID='6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const BLE_TX_UUID='6e400003-b5a3-f393-e0a9-e50e24dcca9e';
 async function toggleBT(){
   if(S.btOn){disconnectBT();return;}
   if(!navigator.bluetooth){showToast('⚠️ Usa Chrome o Edge para Bluetooth');return;}
