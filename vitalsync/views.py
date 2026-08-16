@@ -13,7 +13,7 @@ import json
 from django.shortcuts import redirect, render
 
 from cedulas_proxy.views import CedulaLookupError, get_cedula_data
-from .models import UserProfile
+from .models import HeartRateMeasurement, UserProfile
 from .chatbot import GeminiConfigurationError, GeminiRequestError, emergency_reply, generate_reply
 
 
@@ -265,6 +265,34 @@ def emergency_alert_view(request):
 
     cache.set(rate_key, True, timeout=60 * 5)
     return JsonResponse({'sent': True})
+
+
+@login_required
+@require_POST
+def heart_rate_measurement_view(request):
+    """Registra una lectura BLE validada para el usuario autenticado."""
+    try:
+        payload = json.loads(request.body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': 'La solicitud no tiene un formato válido.'}, status=400)
+
+    bpm = payload.get('bpm')
+    if isinstance(bpm, bool):
+        return JsonResponse({'error': 'La frecuencia cardíaca no es válida.'}, status=400)
+    try:
+        bpm = round(float(bpm))
+    except (TypeError, ValueError):
+        return JsonResponse({'error': 'La frecuencia cardíaca no es válida.'}, status=400)
+    if not 30 <= bpm <= 220:
+        return JsonResponse({'error': 'La frecuencia cardíaca debe estar entre 30 y 220 bpm.'}, status=400)
+
+    device_name = str(payload.get('device_name', '')).strip()[:120]
+    measurement = HeartRateMeasurement.objects.create(
+        user=request.user,
+        bpm=bpm,
+        device_name=device_name,
+    )
+    return JsonResponse({'saved': True, 'id': measurement.pk, 'recorded_at': measurement.recorded_at.isoformat()})
 
 
 @login_required

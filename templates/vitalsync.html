@@ -259,7 +259,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
       <div class="bt-pill" id="bt-pill" onclick="toggleBT()">
         <div class="bt-dot" id="bt-dot"></div>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity:.55"><path d="M6.5 6.5l11 11M17.5 6.5L12 12l5.5 5.5M6.5 17.5L12 12"/></svg>
-        <span id="bt-lbl">Conectar pulsera</span>
+        <span id="bt-lbl">Conectar monitor</span>
       </div>
     </div>
     <div class="nav-btns">
@@ -321,7 +321,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
   <div class="scroll-body">
     <div class="card card-teal mb10" id="bt-status-v" style="display:none;">
       <div class="eyebrow ey-t"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Pulsera conectada</div>
-      <div style="font-size:13px;color:var(--teal);font-weight:700;">VitalBand Pro · BPM en tiempo real activo</div>
+      <div style="font-size:13px;color:var(--teal);font-weight:700;">Monitor BLE · BPM en tiempo real activo</div>
     </div>
     <div class="card">
       <div class="eyebrow ey-b"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>Presión arterial</div>
@@ -597,7 +597,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);disp
 {{ dashboard_data|json_script:"dashboard-data" }}
 <script>
 const dashboardData=JSON.parse(document.getElementById('dashboard-data').textContent);
-const S={name:dashboardData.name,cedula:dashboardData.cedula,conds:dashboardData.conditions,meds:dashboardData.medications,contacts:[],emergencyEmail:dashboardData.emergencyEmail,profile:dashboardData.profile||{},position:'sentado',btOn:false,btIv:null,bType:null,bActive:false,bIv:null,bPhase:0,bTimer:0,bCycle:0,bTotal:5,lastPct:null};
+const S={name:dashboardData.name,cedula:dashboardData.cedula,conds:dashboardData.conditions,meds:dashboardData.medications,contacts:[],emergencyEmail:dashboardData.emergencyEmail,profile:dashboardData.profile||{},position:'sentado',btOn:false,btDevice:null,btChar:null,btLastSavedAt:0,btLastSavedBpm:null,btLastAlert:'',btIv:null,bType:null,bActive:false,bIv:null,bPhase:0,bTimer:0,bCycle:0,bTotal:5,lastPct:null};
 
 function hydrateDashboard(){
   document.getElementById('p-av').textContent=S.name.charAt(0).toUpperCase();
@@ -633,51 +633,70 @@ async function sendChatMessage(event){event.preventDefault();const input=documen
 document.getElementById('chat-form').addEventListener('submit',sendChatMessage);
 document.getElementById('chat-input').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();document.getElementById('chat-form').requestSubmit();}});
 
-// BT
+// BLE: protocolo Nordic UART emitido por MonitorCardiaco_ESP32.
+const BLE_SERVICE_UUID='6E400001-B5A3-F393-E0A9-E50E24DCCA9E';
+const BLE_TX_UUID='6E400003-B5A3-F393-E0A9-E50E24DCCA9E';
 async function toggleBT(){
   if(S.btOn){disconnectBT();return;}
   if(!navigator.bluetooth){showToast('⚠️ Usa Chrome o Edge para Bluetooth');return;}
   try{
     showToast('🔍 Buscando dispositivos...');
     const device=await navigator.bluetooth.requestDevice({
-      filters:[{services:['heart_rate']}],
-      optionalServices:['heart_rate']
+      filters:[{services:[BLE_SERVICE_UUID]}]
     });
     S.btDevice=device;
-    device.addEventListener('gattserverdisconnected',()=>disconnectBT());
+    device.addEventListener('gattserverdisconnected',()=>{if(S.btDevice===device)disconnectBT();});
     const server=await device.gatt.connect();
-    const service=await server.getPrimaryService('heart_rate');
-    const char=await service.getCharacteristic('heart_rate_measurement');
+    const service=await server.getPrimaryService(BLE_SERVICE_UUID);
+    const char=await service.getCharacteristic(BLE_TX_UUID);
     await char.startNotifications();
     char.addEventListener('characteristicvaluechanged',onBTData);
     S.btChar=char;S.btOn=true;
     const pill=document.getElementById('bt-pill'),dot=document.getElementById('bt-dot'),lbl=document.getElementById('bt-lbl');
     pill.classList.add('on');dot.classList.add('on');
-    lbl.textContent=device.name||'Dispositivo conectado';
+    lbl.textContent=device.name||'Monitor cardíaco conectado';
     document.getElementById('bt-status-v').style.display='block';
     document.getElementById('bpm-mw').style.display='none';
     document.getElementById('bpm-ac').style.display='flex';
-    showToast('✅ Pulsera conectada');
+    showToast('✅ Monitor cardíaco conectado');
   }catch(e){
     if(e.name!=='NotFoundError')showToast('❌ '+e.message);
   }
 }
 function onBTData(e){
-  const val=e.target.value,flags=val.getUint8(0);
-  const bpm=(flags&0x01)?val.getUint16(1,true):val.getUint8(1);
+  const text=new TextDecoder().decode(e.target.value).trim();
+  const match=text.match(/^BPM:\s*([0-9]+(?:\.[0-9]+)?)/i);
+  if(!match){
+    if(/^ALERTA:/i.test(text)&&text!==S.btLastAlert){S.btLastAlert=text;showToast('⚠️ '+text);}
+    return;
+  }
+  const bpm=Math.round(Number(match[1]));
+  if(!Number.isFinite(bpm)||bpm<30||bpm>220)return;
   document.getElementById('bpm-live').textContent=bpm+' bpm';
-  document.getElementById('bpm').value=bpm;calcA();
+  document.getElementById('bpm').value=bpm;calcA();saveBTMeasurement(bpm);
+}
+async function saveBTMeasurement(bpm){
+  const now=Date.now();
+  if(now-S.btLastSavedAt<30000&&Math.abs((S.btLastSavedBpm??bpm)-bpm)<5)return;
+  S.btLastSavedAt=now;S.btLastSavedBpm=bpm;
+  try{
+    const response=await fetch('{% url "heart_rate_measurement" %}',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken()},body:JSON.stringify({bpm,device_name:S.btDevice?.name||'MonitorCardiaco_ESP32'})});
+    if(!response.ok)throw new Error('No fue posible guardar la lectura.');
+  }catch(error){
+    // Se conserva la medición visible aunque falle el registro remoto.
+    S.btLastSavedAt=0;
+  }
 }
 function disconnectBT(){
-  if(S.btDevice&&S.btDevice.gatt.connected)S.btDevice.gatt.disconnect();
-  S.btOn=false;S.btDevice=null;S.btChar=null;
+  const device=S.btDevice;S.btOn=false;S.btDevice=null;S.btChar=null;
+  if(device&&device.gatt.connected)device.gatt.disconnect();
   document.getElementById('bt-pill').classList.remove('on');
   document.getElementById('bt-dot').classList.remove('on');
-  document.getElementById('bt-lbl').textContent='Conectar pulsera';
+  document.getElementById('bt-lbl').textContent='Conectar monitor';
   document.getElementById('bt-status-v').style.display='none';
   document.getElementById('bpm-ac').style.display='none';
   document.getElementById('bpm-mw').style.display='block';
-  showToast('🔌 Pulsera desconectada');
+  showToast('🔌 Monitor cardíaco desconectado');
 }
 
 // ANXIETY
