@@ -10,7 +10,7 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
-SYSTEM_PROMPT = """You are VitalSync Assistant, an empathetic, clear, and privacy-focused health AI embedded within the VitalSync web application.
+SYSTEM_PROMPT = """You are ControlHealth Assistant, an empathetic, clear, and privacy-focused health AI embedded within the ControlHealth web application.
 
 CORE RESPONSIBILITIES
 1. Answer general wellness, nutrition, fitness, and health metric tracking questions.
@@ -136,7 +136,9 @@ def generate_reply(message, profile, metrics, history):
     payload = {
         'systemInstruction': {'parts': [{'text': f'{SYSTEM_PROMPT}\n\n{_health_context(profile, metrics)}'}]},
         'contents': contents,
-        'generationConfig': {'temperature': 0.35, 'maxOutputTokens': 500},
+        # Newer Gemini models can spend part of this budget reasoning before
+        # emitting text. Leave enough room for a complete, useful answer.
+        'generationConfig': {'temperature': 0.35, 'maxOutputTokens': 1024},
     }
     model = quote(model_name, safe='-._')
     url = f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent'

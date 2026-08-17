@@ -38,4 +38,4 @@ services:
 
 databases:
   - name: vitalsync-db
-    plan: free
+    plan: starter
