@@ -64,7 +64,7 @@ Abre `http://localhost:8000` en tu navegador.
 ## Variables de entorno
 
 - `GEMINI_API_KEY`: clave de API para el asistente de IA
-- `GEMINI_MODEL`: modelo de Gemini a usar (por defecto `gemini-2.5-flash`)
+- `GEMINI_MODEL`: modelo de Gemini a usar (por defecto `gemini-3.6-flash`)
 - `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`: credenciales SMTP para las alertas de emergencia.
 - `EMERGENCY_EMAIL_FROM`: dirección remitente de esas alertas (normalmente la misma cuenta SMTP).
 
