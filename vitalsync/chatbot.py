@@ -1,8 +1,13 @@
+import logging
+import os
 import re
 from urllib.parse import quote
 
 import requests
 from django.conf import settings
+
+
+logger = logging.getLogger(__name__)
 
 
 SYSTEM_PROMPT = """You are VitalSync Assistant, an empathetic, clear, and privacy-focused health AI embedded within the VitalSync web application.
@@ -109,8 +114,16 @@ def _health_context(profile, metrics):
 
 
 def generate_reply(message, profile, metrics, history):
-    if not settings.GEMINI_API_KEY:
+    # Prefer the configured Django setting, but read the process environment as
+    # a fallback. This keeps long-running web workers in sync with the secret
+    # provided by the hosting platform after a service restart.
+    api_key = (getattr(settings, 'GEMINI_API_KEY', '') or os.environ.get('GEMINI_API_KEY', '')).strip()
+    model_name = (getattr(settings, 'GEMINI_MODEL', '') or os.environ.get('GEMINI_MODEL', '')).strip()
+    if not api_key:
+        logger.error('Gemini is not configured in the active web process.')
         raise GeminiConfigurationError('GEMINI_API_KEY is not configured.')
+    if not model_name:
+        raise GeminiConfigurationError('GEMINI_MODEL is not configured.')
 
     contents = []
     for item in history[-6:]:
@@ -125,12 +138,12 @@ def generate_reply(message, profile, metrics, history):
         'contents': contents,
         'generationConfig': {'temperature': 0.35, 'maxOutputTokens': 500},
     }
-    model = quote(settings.GEMINI_MODEL, safe='-._')
+    model = quote(model_name, safe='-._')
     url = f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent'
     try:
         response = requests.post(
             url,
-            headers={'x-goog-api-key': settings.GEMINI_API_KEY, 'Content-Type': 'application/json'},
+            headers={'x-goog-api-key': api_key, 'Content-Type': 'application/json'},
             json=payload,
             timeout=25,
         )
